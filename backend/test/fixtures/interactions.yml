@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  post: one
+  event_type: MyString
+  duration_ms: 1
+
+two:
+  user: two
+  post: two
+  event_type: MyString
+  duration_ms: 1
