@@ -1,5 +1,5 @@
 # Seeds Post records (text + image) from Bluesky author feeds.
-# Run with: bin/rails runner db/seeds/bluesky_seed.rb
+# Run with: bin/rails runner script/ingestion.rb
 require "net/http"
 require "json"
 

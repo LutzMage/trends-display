@@ -1,4 +1,3 @@
-# app/jobs/generate_embeddings_job.rb
 class GenerateEmbeddingsJob < ApplicationJob
   queue_as :default
   retry_on Errno::ECONNREFUSED, Net::ReadTimeout, wait: :polynomially_longer, attempts: 5
