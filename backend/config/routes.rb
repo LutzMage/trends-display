@@ -7,8 +7,6 @@ Rails.application.routes.draw do
 
   namespace :api do
     get "hello", to: "hello#index"
+    resources :posts, only: [:create, :show]
   end
-
-  # Defines the root path route ("/")
-  # root "posts#index"
 end

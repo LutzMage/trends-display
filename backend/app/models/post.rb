@@ -11,4 +11,12 @@ class Post < ApplicationRecord
   validates :media_url, presence: true, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]) },
     if: :media_type?
   validates :media_url, absence: true, unless: :media_type?
+
+  after_create_commit :enqueue_embeddings
+
+  private
+
+  def enqueue_embeddings
+    GenerateEmbeddingsJob.perform_later(self)
+  end
 end
