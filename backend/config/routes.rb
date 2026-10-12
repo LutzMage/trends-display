@@ -6,7 +6,7 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   namespace :api do
-    get "hello", to: "hello#index"
+    get '/feed', to: 'feed#index'
     resources :posts, only: [:create, :show]
   end
 end

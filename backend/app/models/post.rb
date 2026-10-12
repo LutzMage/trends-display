@@ -14,6 +14,13 @@ class Post < ApplicationRecord
 
   after_create_commit :enqueue_embeddings
 
+  def feed_json
+    {
+      id:, text:, media_type:, media_url:, created_at:,
+      user: { id: user.id, username: user.username }
+    }
+  end
+
   private
 
   def enqueue_embeddings
