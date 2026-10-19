@@ -2,6 +2,7 @@
 # Run with: ruby handles_by_interest.rb   (or bin/rails runner handles_by_interest.rb)
 # Prints a Ruby hash you can paste into your seed script.
 # encoding: utf-8
+
 require "net/http"
 require "json"
 
@@ -10,11 +11,11 @@ API = ENV['BLUESKY_HANDLERS_API']
 # Several queries per interest: plain topic words return lots of
 # organizations and policy accounts, so add photo-heavy terms.
 INTERESTS = {
-  food:     ["recipes", "home cooking", "baking", "food photography"],
-  travel:   ["travel photography", "travel blogger", "backpacking", "landscape photography"],
-  crafting: ["crochet", "knitting", "woodworking", "pottery", "embroidery"],
-  arts:     ["illustrator", "painter", "watercolor", "digital artist"],
-  science:  ["astronomy", "astrophotography", "biologist", "science communicator", "geology"]
+  food:     [ "recipes", "home cooking", "baking", "food photography" ],
+  travel:   [ "travel photography", "travel blogger", "backpacking", "landscape photography" ],
+  crafting: [ "crochet", "knitting", "woodworking", "pottery", "embroidery" ],
+  arts:     [ "illustrator", "painter", "watercolor", "digital artist" ],
+  science:  [ "astronomy", "astrophotography", "biologist", "science communicator", "geology" ]
 }
 
 HANDLES_PER_INTEREST = 8
