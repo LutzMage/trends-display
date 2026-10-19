@@ -22,9 +22,9 @@ Source: [plan.md](plan.md) · Spec: [001-view-post.md](001-view-post.md)
 - [x] Tests green, and `bin/rubocop -a` is clean.
 
 ## Phase 2 — Routing
-- [ ] `main.tsx`: wrap the app in `BrowserRouter`.
-- [ ] `App.tsx`: layout route `/` → `FeedView`, with an `index` child and a `posts/:postId` child.
-- [ ] Verify that `useParams` returns `postId` inside `FeedView`; if not, fall back to `useMatch`.
+- [x] `main.tsx`: wrap the app in `BrowserRouter`.
+- [x] `App.tsx`: layout route `/` → `FeedView`, with an `index` child and a `posts/:postId` child.
+- [x] Verify that `useParams` returns `postId` inside `FeedView`; if not, fall back to `useMatch`.
 
 ## Phase 3 — Data layer
 - [ ] `api/feed.ts`: export `API_URL`.
