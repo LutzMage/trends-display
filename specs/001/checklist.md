@@ -27,9 +27,9 @@ Source: [plan.md](plan.md) · Spec: [001-view-post.md](001-view-post.md)
 - [x] Verify that `useParams` returns `postId` inside `FeedView`; if not, fall back to `useMatch`.
 
 ## Phase 3 — Data layer
-- [ ] `api/feed.ts`: export `API_URL`.
-- [ ] `api/posts.ts`: add `fetchPost(id, signal)` and `PostNotFoundError`.
-- [ ] `hooks/usePost.ts`: loading, ready, not-found and error states, instant render from feed data, abort on change, `retry`.
+- [x] `api/feed.ts`: export `API_URL`.
+- [x] `api/posts.ts`: add `fetchPost(id, signal)` and `PostNotFoundError`.
+- [x] `hooks/usePost.ts`: loading, ready, not-found and error states, instant render from feed data, abort on change, `retry`.
 
 ## Phase 4 — Components
 - [ ] `TextCard.tsx`: extract the gradient card from `PostCard`, with an optional `clamp` prop.
