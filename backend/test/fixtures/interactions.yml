@@ -3,11 +3,11 @@
 one:
   user: one
   post: one
-  event_type: MyString
+  event_type: like
   duration_ms: 1
 
 two:
   user: two
   post: two
-  event_type: MyString
+  event_type: like
   duration_ms: 1

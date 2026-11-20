@@ -9,7 +9,7 @@ HANDLES_BY_INTEREST = {
   travel: %w[dennisdunnam.bsky.social travelshots.bsky.social thousandvoyages.bsky.social shawphotography.bsky.social unravelwt.com madgreek2024.bsky.social grumpysteff.bsky.social jaycee-visionlogic.eurosky.social],
   crafting: %w[debbiecrochets.bsky.social jencarole.bsky.social crochetnivore.bsky.social aoibheni.bsky.social crochetlady.bsky.social rustymarcum.bsky.social erlern.bsky.social 123crochetsarah.bsky.social],
   arts: %w[rosuuri.com rpancoast.bsky.social yookikiku.bsky.social neal-illustrator.bsky.social kachin4649.bsky.social mathiasball.bsky.social pbmoj.bsky.social wolftapioca.bsky.social],
-  science: %w[astronomers.bsky.social astronomy.bsky.social apod.shinyakato.dev astro4edu.bsky.social thenrao.bsky.social sjbastro.bsky.social astronomyedinburgh.bsky.social astronomy2024.bsky.social],
+  science: %w[astronomers.bsky.social astronomy.bsky.social apod.shinyakato.dev astro4edu.bsky.social thenrao.bsky.social sjbastro.bsky.social astronomyedinburgh.bsky.social astronomy2024.bsky.social]
 }
 
 FEED_URL           = ENV['BLUESKY_API_URL']

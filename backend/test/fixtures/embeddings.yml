@@ -1,13 +1,16 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
+# Vectors are 3 meaningful dimensions zero-padded to Embedding::MAX_DIMENSIONS.
 one:
-  embeddable: one
-  embeddable_type: Embeddable
-  embedding_type: MyString
-  dimensions: 1
+  embeddable: one (Post)
+  embedding_type: text
+  embedding_model: test-model
+  dimensions: 3
+  vector: <%= ([1.0, 0.0, 0.0] + [0.0] * 765).to_json %>
 
 two:
-  embeddable: two
-  embeddable_type: Embeddable
-  embedding_type: MyString
-  dimensions: 1
+  embeddable: two (Post)
+  embedding_type: text
+  embedding_model: test-model
+  dimensions: 3
+  vector: <%= ([0.0, 1.0, 0.0] + [0.0] * 765).to_json %>

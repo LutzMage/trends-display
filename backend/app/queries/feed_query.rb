@@ -14,7 +14,7 @@ class FeedQuery
 
   def ranked(profile)
     vec  = "[#{profile.vector.join(',')}]"
-    dist = ActiveRecord::Base.sanitize_sql(["embeddings.vector <=> ?::vector", vec])
+    dist = ActiveRecord::Base.sanitize_sql([ "embeddings.vector <=> ?::vector", vec ])
 
     base = Embedding
       .where(embeddable_type: "Post", embedding_type: "text", embedding_model: profile.embedding_model)

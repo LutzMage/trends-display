@@ -1,4 +1,6 @@
 class Api::PostsController < ApplicationController
+  rescue_from ActiveRecord::RecordNotFound, with: :post_not_found
+
   def create
     @post = Post.new(post_params)
 
@@ -10,12 +12,16 @@ class Api::PostsController < ApplicationController
   end
 
   def show
-    render json: Post.find(params[:id]), status: :ok
+    render json: Post.includes(:user).find(params[:id]).feed_json
   end
 
   private
 
+  def post_not_found
+    render json: { error: "Post not found" }, status: :not_found
+  end
+
   def post_params
-    params.expect(post: [:user_id, :text, :media_type, :media_url])
+    params.expect(post: [ :user_id, :text, :media_type, :media_url ])
   end
 end

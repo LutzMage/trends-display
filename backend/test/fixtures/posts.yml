@@ -2,12 +2,10 @@
 
 one:
   user: one
-  text: MyString
-  media_type: MyString
-  media_url: MyString
+  text: Watercolor study of a mountain lake
+  media_type: image
+  media_url: https://example.com/one.jpg
 
 two:
   user: two
-  text: MyString
-  media_type: MyString
-  media_url: MyString
+  text: Text-only thoughts on slow mornings

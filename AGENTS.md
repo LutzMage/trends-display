@@ -12,8 +12,9 @@ Pinterest-like application: a feed with different interactive posts, and a recom
 English language for code and messages.
 
 ## Rules
-- Lee docs/constitution.md y la spec activa antes de tocar código.
+- Read `intent/intent.md` and the active spec before modifying the code.
 - Do not install gems and/or npm libraries without asking.
+- Always create the test first, and try to accomplish the criteria with the code.
 
 ## Finally
 - Execute unitary tests

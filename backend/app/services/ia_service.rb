@@ -4,12 +4,12 @@ require "json"
 require "base64"
 
 class IaService
-  BASE_URL     = ENV['EMBEDDINGS_URL']
-  EMBED_MODEL  = ENV['EMBED_MODEL']
-  VISION_MODEL = ENV['VISION_MODEL']
+  BASE_URL     = ENV["EMBEDDINGS_URL"]
+  EMBED_MODEL  = ENV["EMBED_MODEL"]
+  VISION_MODEL = ENV["VISION_MODEL"]
 
   def self.embed(text)
-    body = post("/embeddings", model: EMBED_MODEL, input: [text.tr("\n", " ")])
+    body = post("/embeddings", model: EMBED_MODEL, input: [ text.tr("\n", " ") ])
     body.dig("data", 0, "embedding")
   end
 
@@ -24,13 +24,13 @@ class IaService
       model: VISION_MODEL,
       temperature: 0,
       max_tokens: 150,
-      messages: [{
+      messages: [ {
         role: "user",
         content: [
           { type: "text", text: "Describe this image in 2-3 sentences: main subject, setting, style. No preamble." },
           { type: "image_url", image_url: { url: data_url } }
         ]
-      }]
+      } ]
     )
     body.dig("choices", 0, "message", "content").to_s.strip
   end
@@ -38,12 +38,12 @@ class IaService
   # Returns [bytes, mime] as JPEG or PNG, which vision models reliably accept.
   def self.normalize_image(bytes)
     case sniff_mime(bytes)
-    when "image/jpeg" then [bytes, "image/jpeg"]
-    when "image/png"  then [bytes, "image/png"]
+    when "image/jpeg" then [ bytes, "image/jpeg" ]
+    when "image/png"  then [ bytes, "image/png" ]
     else
       # WebP, GIF, AVIF, etc. → re-encode as JPEG.
       require "vips"
-      [Vips::Image.new_from_buffer(bytes, "").jpegsave_buffer(Q: 90), "image/jpeg"]
+      [ Vips::Image.new_from_buffer(bytes, "").jpegsave_buffer(Q: 90), "image/jpeg" ]
     end
   end
 
