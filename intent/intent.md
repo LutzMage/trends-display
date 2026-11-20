@@ -208,7 +208,7 @@ Versions are taken from `backend/.ruby-version`, `backend/Gemfile.lock`, `fronte
 ### 9.1 Backend
 | Component | Version | Role |
 |-----------|---------|------|
-| Ruby | 3.4.10 | Runtime |
+| Ruby | 3.4.13 | Runtime |
 | Ruby on Rails | 8.1.4 (API-only) | Web framework, Active Record, Active Job |
 | Puma | 8.0.2 | Application server |
 | pg | 1.6.3 | PostgreSQL adapter |

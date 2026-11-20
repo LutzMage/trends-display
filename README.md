@@ -36,7 +36,7 @@ React SPA ──JSON──▶ Rails API ──▶ PostgreSQL + pgvector
 ## Getting started
 
 ### Prerequisites
-- Ruby 3.4.10, Node.js 22.22+, PostgreSQL 17+ with the `pgvector` extension, and libvips.
+- Ruby 3.4.13, Node.js 22.22+, PostgreSQL 17+ with the `pgvector` extension, and libvips.
 - An OpenAI-compatible AI server (e.g. [LM Studio](https://lmstudio.ai)) serving an embedding model and a vision model.
 
 ### Configuration
