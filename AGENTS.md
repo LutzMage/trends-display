@@ -19,3 +19,4 @@ English language for code and messages.
 ## Finally
 - Execute unitary tests
 - Execute linters + autofix if applicable
+- Modify the README.md if it's necessary
