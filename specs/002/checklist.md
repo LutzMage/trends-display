@@ -26,16 +26,16 @@ Source: [plan.md](plan.md) · Spec: [002-authentication.md](002-authentication.m
 - [x] `Authentication` concern: `current_user`, `require_authentication`, `start_session` and `end_session`.
 
 ## Phase 2 — Email + password endpoints (test first)
-- [ ] Test (red): sign-in success with the cookie attributes and no token in the body (AC-01).
-- [ ] Test (red): sign-in with an email in mixed case (AC-02).
-- [ ] Test (red): wrong password, unknown email or missing field → the same `401` (AC-03).
-- [ ] Test (red): the 11th attempt → `429` (AC-04).
-- [ ] Test (red): `/api/me` → `200` signed in, and `401` for each invalid case (AC-05, AC-06).
-- [ ] Test (red): sign-out revokes the token and clears the cookie; it is idempotent (AC-07, AC-08).
-- [ ] Routes: `api/auth/sign_in`, `api/auth/sign_out` and `api/me`.
-- [ ] `Api::Auth::SessionsController` with the rate limit and its own store.
-- [ ] `Api::MeController`.
-- [ ] Tests green, and `bin/rubocop -a` is clean.
+- [x] Test (red): sign-in success with the cookie attributes and no token in the body (AC-01).
+- [x] Test (red): sign-in with an email in mixed case (AC-02).
+- [x] Test (red): wrong password, unknown email or missing field → the same `401` (AC-03).
+- [x] Test (red): the 11th attempt → `429` (AC-04).
+- [x] Test (red): `/api/me` → `200` signed in, and `401` for each invalid case (AC-05, AC-06).
+- [x] Test (red): sign-out revokes the token and clears the cookie; it is idempotent (AC-07, AC-08).
+- [x] Routes: `api/auth/sign_in`, `api/auth/sign_out` and `api/me`.
+- [x] `Api::Auth::SessionsController` with the rate limit and its own store.
+- [x] `Api::MeController`.
+- [x] Tests green, and `bin/rubocop -a` is clean.
 
 ## Phase 3 — Google through Auth0 (test first)
 - [ ] Test (red): `Auth0Client.authorize_url` parameters.

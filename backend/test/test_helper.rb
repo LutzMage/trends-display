@@ -37,5 +37,13 @@ module ActionDispatch
       https!
       cookies[:td_session] = SessionToken.issue(user)
     end
+
+    # The lower-cased Set-Cookie line for one cookie in the last response, or nil.
+    def set_cookie_line(name)
+      Array(response.headers["set-cookie"])
+        .flat_map { |header| header.split("\n") }
+        .find { |line| line.start_with?("#{name}=") }
+        &.downcase
+    end
   end
 end

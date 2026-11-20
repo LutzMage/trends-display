@@ -16,4 +16,9 @@ class User < ApplicationRecord
   validates :username, presence: true, uniqueness: true
   validates :email, presence: true, uniqueness: true,
     format: { with: URI::MailTo::EMAIL_REGEXP }
+
+  # The signed-in user as returned by /api/me and sign-in.
+  def account_json
+    { id:, username:, email: }
+  end
 end
