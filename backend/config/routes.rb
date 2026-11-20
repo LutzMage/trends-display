@@ -8,5 +8,11 @@ Rails.application.routes.draw do
   namespace :api do
     get "/feed", to: "feed#index"
     resources :posts, only: [ :create, :show ]
+
+    namespace :auth do
+      post "sign_in", to: "sessions#create"
+      delete "sign_out", to: "sessions#destroy"
+    end
+    get "me", to: "me#show"
   end
 end
