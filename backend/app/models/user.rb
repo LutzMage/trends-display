@@ -1,4 +1,9 @@
 class User < ApplicationRecord
+  has_secure_password
+
+  # Lower-cased so sign-in and Google email matching ignore case.
+  normalizes :email, with: ->(email) { email.strip.downcase }
+
   has_many :posts, dependent: :destroy
   has_many :interactions, dependent: :destroy
   has_many :feed_items, dependent: :destroy

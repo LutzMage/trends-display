@@ -28,5 +28,8 @@ module Backend
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+
+    # The session JWT travels in an HttpOnly cookie (SPEC-002), and API mode leaves cookies out.
+    config.middleware.use ActionDispatch::Cookies
   end
 end
