@@ -7,7 +7,7 @@
 | Branch       | `add-post-view` |
 | Intent trace | FR-INT-01 (post detail view), FR-FEED-08 (image / text card rendering) |
 | Deferred     | FR-INT-02…07 (interaction recording and actions), FR-FEED-10 in the detail view (author shown on cards only) |
-| Last updated | 2026-10-19 |
+| Last updated | 2026-11-20 (added §3.6 entrance animation and Back button) |
 
 ---
 
@@ -30,13 +30,14 @@ In this iteration the icons are **visual only**. Like and comment each show a co
 - Loading the post from `GET /api/posts/:id`, including on deep links and reloads.
 - Pinning View Post at the top-left of the grid while the feed keeps rendering around it.
 - Loading, not-found and error states for View Post.
+- A short entrance animation when View Post appears, and a **Back** button in its top-left corner (§3.6).
 - Updating the backend `show` endpoint so it returns the same shape as feed posts.
 
 ### 2.2 Out of scope
 - Any behaviour on the like, comment and share icons (no handlers, no API calls).
 - Recording `click`, `view` or `impression` interactions.
 - Real interaction counts. Both counts are hardcoded to `0`.
-- Author block, timestamp, close (X) button, related-posts logic.
+- Author block, timestamp, a separate close (X) button (the Back button in §3.6 covers it), related-posts logic.
 - Authentication.
 - Comment threads UI.
 - A frontend test runner.
@@ -127,6 +128,21 @@ Visual style follows the existing cards: white surface, `rounded-2xl`, `shadow-s
 
 When the user leaves (navigates to another post or to `/`), any in-flight request is aborted.
 
+### 3.6 Entrance animation and Back button
+Added 2026-11-20 to make opening and leaving a post feel smoother.
+
+**Entrance animation**
+- When View Post appears, it fades in while rising slightly and scaling up from 98 % (`opacity 0 → 1`, `translateY(8px) → 0`, `scale(0.98) → 1`), over **200 ms** with `ease-out`.
+- It plays each time a post is shown: on opening a post, on swapping to another post, and after the loading skeleton resolves. It does not replay when the request only confirms a post already shown from feed data.
+- It plays only when the user has not asked for reduced motion (`prefers-reduced-motion`). Otherwise View Post appears instantly.
+- The loading, not-found and error states are not animated.
+
+**Back button**
+- A round icon button with a left arrow, overlaid on the **top-left corner** of View Post (over the image or text card), with the accessible name "Back".
+- It behaves like the browser Back button: it returns to the previous entry in the app's history (the feed, or the previously opened post).
+- When there is no previous in-app entry (the post was opened from a direct link or a reload), it navigates to `/` instead, so it never leaves the site.
+- It is keyboard-reachable and shows a visible focus outline.
+
 ---
 
 ## 4. API
@@ -172,7 +188,9 @@ Today the endpoint renders the raw model (`render json: Post.find(...)`), withou
 | `frontend/src/api/posts.ts` (new) | `fetchPost(id: number, signal?: AbortSignal): Promise<FeedPost>`. Reuses `FeedPost` and the `API_URL` convention from `api/feed.ts`. On `404` it throws a `PostNotFoundError` so the UI can tell it apart from other failures. |
 | `frontend/src/hooks/usePost.ts` (new) | `usePost(id, initial?: FeedPost)` → `{ post, status: 'loading' \| 'ready' \| 'not-found' \| 'error', error, retry }`. Aborts on id change or unmount. Follows the `AbortController` pattern in `useFeed.ts`. |
 | `frontend/src/components/TextCard.tsx` (new) | The gradient text card, extracted from `PostCard`. Prop `clamp` limits lines on feed cards; View Post shows the full text. |
-| `frontend/src/components/ViewPost.tsx` (new) | Presentational: `{ post: FeedPost; likeCount?: number; commentCount?: number }`. Renders §3.4. Also owns the image-error fallback, as `PostCard` does today. |
+| `frontend/src/components/ViewPost.tsx` (new) | Presentational: `{ post: FeedPost; likeCount?: number; commentCount?: number }`. Renders §3.4. Also owns the image-error fallback, as `PostCard` does today. Plays the entrance animation and renders the Back button (§3.6). |
+| `frontend/src/components/icons.tsx` (new) | Inline SVG icons: Heart, Comment, Share, and ArrowLeft for the Back button. |
+| `frontend/src/index.css` | Defines the `pin-in` keyframes and the `animate-pin-in` utility in Tailwind's `@theme` (§3.6). |
 | `frontend/src/components/PostCard.tsx` | Wrap the card in `<Link to={`/posts/${post.id}`}>` and use `TextCard`. |
 | `frontend/src/components/MasonryGrid.tsx` | New optional props `header?: ReactNode` and `headerSpan?: number`. When `header` is set, the first `headerSpan` buckets render inside a wrapper with `header` above them. The other buckets render as today. The round-robin bucket distribution is unchanged. |
 | `frontend/src/views/FeedView.tsx` | Read `postId` with `useParams()`. If present: use `usePost(postId, postsFromFeed.find(...))`, pass the View Post (or a state from §3.5) as `header` with `headerSpan = Math.min(columns, 2)`, filter that post out of `items`, and call `window.scrollTo({ top: 0 })` when `postId` changes. Make the "Trends" heading a `<Link to="/">`. |
@@ -208,6 +226,8 @@ Per `AGENTS.md`, `react-router` must be **approved before installation**. No oth
 | AC-16 | Keyboard only | I Tab through the feed | Each card is focusable and Enter opens it. In View Post, the three icon buttons are focusable and announce "Like", "Comment" and "Share". |
 | AC-17 | — | `GET /api/posts/:id` for an existing post | `200` with the `feed_json` shape, including `user.username`. |
 | AC-18 | — | `GET /api/posts/:id` for an unknown id | `404` with `{ "error": "Post not found" }`. |
+| AC-19 | Reduced motion is off | I open a post, or click another card while one is open | View Post fades and rises into place over about 200 ms. With reduced motion on, it appears instantly. |
+| AC-20 | View Post is open | I click (or press Enter on) the Back button in its top-left corner | I return to the previous page in the app, as with the browser Back button. If I opened the post from a direct link, I go to `/`. The button announces "Back". |
 
 ---
 
@@ -221,7 +241,7 @@ Per `AGENTS.md`, `react-router` must be **approved before installation**. No oth
 - `cd frontend && npm run lint` (oxlint)
 - `cd frontend && npm run build` (runs `tsc -b`, which catches type errors)
 
-**Manual (frontend)**: run `bin/rails server -p 3000` and `npm run dev`, then go through AC-01 to AC-16 at widths of 375, 800, 1100 and 1400 px.
+**Manual (frontend)**: run `bin/rails server -p 3000` and `npm run dev`, then go through AC-01 to AC-16, AC-19 and AC-20 at widths of 375, 800, 1100 and 1400 px.
 
 ---
 

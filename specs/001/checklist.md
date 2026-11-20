@@ -32,28 +32,37 @@ Source: [plan.md](plan.md) · Spec: [001-view-post.md](001-view-post.md)
 - [x] `hooks/usePost.ts`: loading, ready, not-found and error states, instant render from feed data, abort on change, `retry`.
 
 ## Phase 4 — Components
-- [ ] `TextCard.tsx`: extract the gradient card from `PostCard`, with an optional `clamp` prop.
-- [ ] `icons.tsx`: Heart, Comment and Share as inline SVGs.
-- [ ] `ViewPost.tsx`: image or text card, full text, and like `0` / comment `0` / share buttons with no handlers.
-- [ ] `PostCard.tsx`: wrap the card in a `Link` to `/posts/:id` and use `TextCard`.
-- [ ] `MasonryGrid.tsx`: add `header` and `headerSpan` props for the pinned top-left block.
-- [ ] `FeedView.tsx`: read `postId`, call `usePost`, render the `PinnedPost` states, and filter the open post out of the grid.
-- [ ] `FeedView.tsx`: set `headerSpan = min(columns, 2)` and scroll to the top when `postId` changes.
-- [ ] `FeedView.tsx`: render the grid whenever a post is open, and make "Trends" a link to `/`.
+- [x] `TextCard.tsx`: extract the gradient card from `PostCard`, with an optional `clamp` prop.
+- [x] `icons.tsx`: Heart, Comment and Share as inline SVGs.
+- [x] `ViewPost.tsx`: image or text card, full text, and like `0` / comment `0` / share buttons with no handlers.
+- [x] `PostCard.tsx`: wrap the card in a `Link` to `/posts/:id` and use `TextCard`.
+- [x] `MasonryGrid.tsx`: add `header` and `headerSpan` props for the pinned top-left block.
+- [x] `FeedView.tsx`: read `postId`, call `usePost`, render the `PinnedPost` states, and filter the open post out of the grid.
+- [x] `FeedView.tsx`: set `headerSpan = min(columns, 2)` and scroll to the top when `postId` changes.
+- [x] `FeedView.tsx`: render the grid whenever a post is open, and make "Trends" a link to `/`.
+
+## Phase 4b — UX additions (spec §3.6, added 2026-11-20)
+- [x] `index.css`: add the `pin-in` keyframes and the `animate-pin-in` utility in `@theme`.
+- [x] `ViewPost.tsx`: play the entrance animation with `motion-safe:animate-pin-in`.
+- [x] `icons.tsx`: add `ArrowLeftIcon`.
+- [x] `ViewPost.tsx`: add the Back button in the top-left corner (`navigate(-1)`, or `/` when there is no in-app history).
+- [x] Re-run the Phase 5 quality gates.
 
 ## Phase 5 — Quality gates
-- [ ] `cd backend && bin/rails test`
-- [ ] `cd backend && bin/rubocop -a`
-- [ ] `cd frontend && npx oxlint --fix && npm run lint`
-- [ ] `cd frontend && npm run build`
+- [x] `cd backend && bin/rails test`
+- [x] `cd backend && bin/rubocop -a`
+- [x] `cd frontend && npx oxlint --fix && npm run lint`
+- [x] `cd frontend && npm run build`
 
 ## Phase 6 — Manual acceptance (375 / 800 / 1100 / 1400 px)
-- [ ] AC-01, AC-11: clicking a card opens and pins it and scrolls to the top. Clicking another card swaps the pinned post.
-- [ ] AC-02 to AC-04: image post, text-only post, and broken-image fallback.
-- [ ] AC-05, AC-06: icons show the `0` counts, and clicking them does nothing (no requests).
-- [ ] AC-07 to AC-09: deep link and reload, the 404 message, and the error with Retry.
-- [ ] AC-10: Back returns to the feed without reloading it.
-- [ ] AC-12: the open post does not appear in the grid.
-- [ ] AC-13, AC-14: View Post spans 2 columns at ≥ 768 px and the full width below that.
-- [ ] AC-15: infinite scroll still works while a post is open.
-- [ ] AC-16: keyboard navigation works and the icon buttons have accessible names.
+- [x] AC-01, AC-11: clicking a card opens and pins it and scrolls to the top. Clicking another card swaps the pinned post.
+- [x] AC-02 to AC-04: image post, text-only post, and broken-image fallback.
+- [x] AC-05, AC-06: icons show the `0` counts, and clicking them does nothing (no requests).
+- [x] AC-07 to AC-09: deep link and reload, the 404 message, and the error with Retry.
+- [x] AC-10: Back returns to the feed without reloading it.
+- [x] AC-12: the open post does not appear in the grid.
+- [x] AC-13, AC-14: View Post spans 2 columns at ≥ 768 px and the full width below that.
+- [x] AC-15: infinite scroll still works while a post is open.
+- [x] AC-16: keyboard navigation works and the icon buttons have accessible names.
+- [x] AC-19: View Post animates in when opened or swapped, and appears instantly with reduced motion.
+- [x] AC-20: the Back button returns to the previous page, or to `/` after a direct link.

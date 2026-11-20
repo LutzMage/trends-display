@@ -102,6 +102,17 @@ Check: in React Router, child params are merged into the parent match, so `usePa
 - The "Trends" `<h1>` content becomes `<Link to="/">Trends</Link>`.
 - The infinite-scroll sentinel and `useFeed` stay as they are (AC-15).
 
+### 6.1 Phase 4b — UX additions (requested 2026-11-20)
+Spec §3.6, AC-19 and AC-20. No new dependencies.
+
+| File | Change |
+|------|--------|
+| `frontend/src/index.css` | In `@theme`, add `--animate-pin-in: pin-in 200ms ease-out` and `@keyframes pin-in { from { opacity: 0; transform: translateY(8px) scale(0.98) } }`. This generates the `animate-pin-in` utility. |
+| `frontend/src/components/icons.tsx` | Add `ArrowLeftIcon`, using the shared `Icon` wrapper. |
+| `frontend/src/components/ViewPost.tsx` | Add `relative motion-safe:animate-pin-in` to the `<article>`. `FeedView` already renders it with `key={post.id}`, so the animation replays on each new post but not when the request confirms feed data. Add a Back `<button aria-label="Back">` positioned `absolute top-3 left-3` (white, round, shadow, focus outline). On click: `navigate(-1)` when `location.key !== 'default'` (there is an in-app history entry), otherwise `navigate('/')`. |
+
+Verification: lint and build (Phase 5), then AC-19 and AC-20 in Phase 6.
+
 ## 7. Phase 5 — Quality gates (AGENTS.md "Finally")
 1. `cd backend && bin/rails test`: all green, including the 3 new tests.
 2. `cd backend && bin/rubocop -a`: clean.
@@ -123,6 +134,8 @@ Start `bin/rails server -p 3000` and `npm run dev`, then go through each check a
 | AC-15 | Infinite scroll still loads pages while a post is open. |
 | AC-16 | Tab + Enter opens a card. The icon buttons are focusable and announce their names. |
 | AC-17, AC-18 | Covered by the backend tests (Phase 1). |
+| AC-19 | Opening and swapping posts animates View Post. With reduced motion emulated in devtools, it appears instantly. |
+| AC-20 | The Back button returns to the previous page. After reloading `/posts/{id}`, it goes to `/`. |
 
 ## 9. Task order and files
 1. P-2 baseline → 3.1 fixtures → 3.2 red tests → 3.3 controller → green + RuboCop.
