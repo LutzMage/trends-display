@@ -12,6 +12,8 @@ Rails.application.routes.draw do
     namespace :auth do
       post "sign_in", to: "sessions#create"
       delete "sign_out", to: "sessions#destroy"
+      get "google", to: "google#start"
+      get "google/callback", to: "google#callback"
     end
     get "me", to: "me#show"
   end

@@ -38,15 +38,15 @@ Source: [plan.md](plan.md) · Spec: [002-authentication.md](002-authentication.m
 - [x] Tests green, and `bin/rubocop -a` is clean.
 
 ## Phase 3 — Google through Auth0 (test first)
-- [ ] Test (red): `Auth0Client.authorize_url` parameters.
-- [ ] Test (red): `exchange_code` returns claims for a valid token, and raises for a bad signature, `iss`, `aud`, `exp` or `nonce`, or a token-endpoint error.
-- [ ] `Auth0Client`: `authorize_url`, `exchange_code`, `fetch_jwks` (cached) and `post_token`.
-- [ ] Test (red): `GET /api/auth/google` redirect and the `td_oauth` cookie attributes (AC-09).
-- [ ] Test (red): callback success (AC-10).
-- [ ] Test (red): callback failures: cancelled, state, missing or expired cookie, no account (no user created), unverified, exchange error (AC-11…15).
-- [ ] Routes: `api/auth/google` and `api/auth/google/callback`.
-- [ ] `Api::Auth::GoogleController`: `start` (state, nonce, PKCE, encrypted cookie) and `callback` (spec §4.4).
-- [ ] Tests green, and `bin/rubocop -a` is clean.
+- [x] Test (red): `Auth0Client.authorize_url` parameters.
+- [x] Test (red): `exchange_code` returns claims for a valid token, and raises for a bad signature, `iss`, `aud`, `exp` or `nonce`, or a token-endpoint error.
+- [x] `Auth0Client`: `authorize_url`, `exchange_code`, `fetch_jwks` (cached) and `post_token`.
+- [x] Test (red): `GET /api/auth/google` redirect and the `td_oauth` cookie attributes (AC-09).
+- [x] Test (red): callback success (AC-10).
+- [x] Test (red): callback failures: cancelled, state, missing or expired cookie, no account (no user created), unverified, exchange error (AC-11…15).
+- [x] Routes: `api/auth/google` and `api/auth/google/callback`.
+- [x] `Api::Auth::GoogleController`: `start` (state, nonce, PKCE, encrypted cookie) and `callback` (spec §4.4).
+- [x] Tests green, and `bin/rubocop -a` is clean.
 
 ## Phase 4 — Feed and posts use the session (test first)
 - [ ] `embeddings.yml`: add a `two_profile` user-profile embedding.

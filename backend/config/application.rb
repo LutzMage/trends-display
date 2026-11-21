@@ -31,5 +31,8 @@ module Backend
 
     # The session JWT travels in an HttpOnly cookie (SPEC-002), and API mode leaves cookies out.
     config.middleware.use ActionDispatch::Cookies
+
+    # The SPA's origin: used by CORS and by redirects back from Google sign-in.
+    config.x.frontend_url = ENV.fetch("FRONTEND_URL", "http://localhost:5173")
   end
 end
