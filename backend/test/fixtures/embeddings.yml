@@ -14,3 +14,11 @@ two:
   embedding_model: test-model
   dimensions: 3
   vector: <%= ([0.0, 1.0, 0.0] + [0.0] * 765).to_json %>
+
+# Bob's taste profile, so his feed is ranked. It matches post one; his own post two is excluded.
+two_profile:
+  embeddable: two (User)
+  embedding_type: user_profile
+  embedding_model: test-model
+  dimensions: 3
+  vector: <%= ([1.0, 0.0, 0.0] + [0.0] * 765).to_json %>

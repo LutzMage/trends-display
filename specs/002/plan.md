@@ -115,7 +115,7 @@ Run the tests until they pass, then run `bin/rubocop -a`.
 | Step | Detail | AC |
 |------|--------|----|
 | Fixture `embeddings.yml` | Add `two_profile`: `embeddable: two (User)`, `embedding_type: user_profile`, `embedding_model: test-model`, `vector` = `[1,0,0…]`. | — |
-| Test (red) `test/controllers/api/feed_controller_test.rb` | <ul><li>Anonymous: posts newest first (`[two, one]`).</li><li>`?user_id=<two>` while anonymous gives the same as no parameter.</li><li>Signed in as `two`: ranked, so only post `one` appears (two's own post is excluded).</li></ul> | AC-16, 17 |
+| Test (red) `test/controllers/api/feed_controller_test.rb` | Compare the **distinct** post ids: the feed wraps around (FR-FEED-07) so posts repeat, and fixture ids are hashes, so `id DESC` order is not `[two, one]`. <ul><li>Anonymous: both posts.</li><li>`?user_id=<two>` while anonymous gives the same as no parameter.</li><li>Signed in as `two`: ranked, so only post `one` appears (two's own post is excluded).</li></ul> | AC-16, 17 |
 | Test (red) `posts_controller_test.rb` | <ul><li>`POST` anonymous: `401`, and `assert_no_difference "Post.count"`.</li><li>Signed in, with `user_id` of another user in the body: `201` and `Post.last.user == current user`.</li><li>Signed in with blank text: `422` with `errors`.</li></ul> | AC-18, 19 |
 | Implement | <ul><li>`FeedController#index`: `FeedQuery.new(user: current_user, …)`. Delete the `user_id` line and update the comment.</li><li>`PostsController`: add `before_action :require_authentication, only: :create`, use `current_user.posts.new(post_params)`, and change `post_params` to `params.expect(post: [ :text, :media_type, :media_url ])`.</li></ul> | — |
 

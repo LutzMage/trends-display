@@ -49,12 +49,12 @@ Source: [plan.md](plan.md) · Spec: [002-authentication.md](002-authentication.m
 - [x] Tests green, and `bin/rubocop -a` is clean.
 
 ## Phase 4 — Feed and posts use the session (test first)
-- [ ] `embeddings.yml`: add a `two_profile` user-profile embedding.
-- [ ] Test (red): feed is newest-first when anonymous, `user_id` is ignored, and it is ranked when signed in (AC-16, AC-17).
-- [ ] Test (red): `POST /api/posts` → `401` when anonymous; the author is the current user; `422` for invalid input (AC-18, AC-19).
-- [ ] `FeedController`: use `current_user` and remove `user_id`.
-- [ ] `PostsController`: `require_authentication` on `create`, `current_user.posts.new`, and drop `:user_id` from the permitted params.
-- [ ] Tests green, and `bin/rubocop -a` is clean.
+- [x] `embeddings.yml`: add a `two_profile` user-profile embedding.
+- [x] Test (red): feed is newest-first when anonymous, `user_id` is ignored, and it is ranked when signed in (AC-16, AC-17).
+- [x] Test (red): `POST /api/posts` → `401` when anonymous; the author is the current user; `422` for invalid input (AC-18, AC-19).
+- [x] `FeedController`: use `current_user` and remove `user_id`.
+- [x] `PostsController`: `require_authentication` on `create`, `current_user.posts.new`, and drop `:user_id` from the permitted params.
+- [x] Tests green, and `bin/rubocop -a` is clean.
 
 ## Phase 5 — Origin check (Should)
 - [ ] Test (red): a foreign `Origin` on `POST`/`DELETE` → `403`; the SPA origin, no `Origin`, and `GET` all pass (AC-20).

@@ -32,4 +32,33 @@ class Api::PostsControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
     assert_equal({ "error" => "Post not found" }, response.parsed_body)
   end
+
+  test "create requires a signed-in user" do
+    assert_no_difference "Post.count" do
+      post api_posts_url, params: { post: { text: "Hello", user_id: users(:one).id } }, as: :json
+    end
+
+    assert_response :unauthorized
+    assert_equal({ "error" => "Not authenticated" }, response.parsed_body)
+  end
+
+  test "create makes the signed-in user the author, whatever user_id is sent" do
+    sign_in_as(users(:two))
+
+    assert_difference "Post.count", 1 do
+      post api_posts_url, params: { post: { text: "Hello", user_id: users(:one).id } }, as: :json
+    end
+
+    assert_response :created
+    assert_equal users(:two), Post.find(response.parsed_body["id"]).user
+  end
+
+  test "create reports validation errors for a signed-in user" do
+    sign_in_as(users(:two))
+
+    post api_posts_url, params: { post: { text: "" } }, as: :json
+
+    assert_response :unprocessable_entity
+    assert_includes response.parsed_body["errors"], "Text can't be blank"
+  end
 end
