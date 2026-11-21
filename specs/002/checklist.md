@@ -82,12 +82,19 @@ Source: [plan.md](plan.md) · Spec: [002-authentication.md](002-authentication.m
 - [ ] Push, and confirm CI is green (all four jobs).
 
 ## Phase 9 — Manual acceptance (Chrome, Edge or Firefox)
-- [ ] AC-21: no user without a `password_digest`; a seeded user signs in with `DEFAULT_USER_PASSWORD`.
-- [ ] AC-22: the header shows **Log in** when signed out.
-- [ ] AC-23, AC-29: sign-in lands on `/` with `@username`, the feed reloads, the session survives a reload, and the cookie flags are HttpOnly, Secure and SameSite Strict.
-- [ ] AC-24: a wrong password shows the alert, clears the password and keeps the email.
-- [ ] AC-25, AC-26: Google with a matching account signs in; no account or a cancel shows the right message.
-- [ ] AC-27: **Log out** → **Log in** in the header and a newest-first feed.
-- [ ] AC-28: `/login` while signed in redirects to `/`.
-- [ ] AC-30: keyboard-only use of the Log in page.
-- [ ] Spec status → Implemented.
+- [x] AC-21: no user without a `password_digest`; a seeded user signs in with `DEFAULT_USER_PASSWORD`.
+- [x] AC-22: the header shows **Log in** when signed out.
+- [x] AC-23, AC-29: sign-in lands on `/` with `@username`, the feed reloads, the session survives a reload, and the cookie flags are HttpOnly, Secure and SameSite Strict.
+- [x] AC-24: a wrong password shows the alert, clears the password and keeps the email.
+- [x] AC-25, AC-26: Google with a matching account signs in; no account or a cancel shows the right message.
+- [x] AC-27: **Log out** → **Log in** in the header and a newest-first feed.
+- [x] AC-28: `/login` while signed in redirects to `/`.
+- [x] AC-30: keyboard-only use of the Log in page.
+- [x] Spec status → Implemented.
+
+## Phase 10 — Clarification 001: clear the pinned post on log out
+Source: [clarification_001.md](clarification_001.md)
+- [x] Documentation: spec §3.3, §3.5 and AC-27 reference CL-001; add AC-31 (clarification §4).
+- [x] `AuthProvider.tsx`: `signOut` navigates to `/` with `replace` before ending the session (clarification §5).
+- [x] Quality gates: `npx oxlint --fix && npm run lint`, `npm run build`, `bin/rails test`.
+- [x] Manual acceptance: AC-31, signed in with a post open → **Log out** → `/`, nothing pinned, newest-first feed.

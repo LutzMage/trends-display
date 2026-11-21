@@ -3,11 +3,11 @@
 | Field        | Value |
 |--------------|-------|
 | Spec ID      | SPEC-002 |
-| Status       | Draft |
+| Status       | Implemented |
 | Branch       | `add-authentication` |
 | Intent trace | FR-AUTH-02…07, FR-AUTH-08 (Google sign-in), NFR-06, NFR-07 |
 | Deferred     | FR-AUTH-01 (sign-up / user creation), protected frontend views (§7) |
-| Last updated | 2026-11-20 |
+| Last updated | 2026-11-21 ([CL-001](clarification_001.md): log out clears the pinned post) |
 
 ---
 
@@ -88,7 +88,7 @@ The feed header keeps the "Trends" link (SPEC-001) and adds, on the right:
 | Signed out | A **Log in** link to `/login`. |
 | Signed in | `@username` and a **Log out** button. |
 
-**Log out** calls `DELETE /api/auth/sign_out`, switches the header to "Log in", and reloads the feed from the top.
+**Log out** calls `DELETE /api/auth/sign_out`, switches the header to "Log in", **closes any open post (navigates to `/`)**, and reloads the feed from the top. See [CL-001](clarification_001.md).
 
 ### 3.4 Google sign-in (what the user sees)
 1. The user clicks **Continue with Google** and leaves the app for Auth0's Google page.
@@ -100,6 +100,7 @@ The feed header keeps the "Trends" link (SPEC-001) and adds, on the right:
 - A session lasts **24 hours** from sign-in. After that, `GET /api/me` returns `401` and the header shows **Log in**. There is no silent refresh.
 - Reloading the page keeps the session, because the cookie survives reloads.
 - The feed reloads from the top whenever the signed-in user changes (sign-in or sign-out), because personalisation changes.
+- Signing out also closes the open post ([CL-001](clarification_001.md)).
 
 ---
 
@@ -337,10 +338,11 @@ No view needs protection yet, so nothing below is implemented in this spec. It r
 | AC-24 | On `/login` | I submit a wrong password | "Invalid email or password" appears in a `role="alert"` element. The password field is cleared and the email is kept. |
 | AC-25 | On `/login` | I click **Continue with Google** and finish with a matching account | I go through Auth0/Google and land on `/`, signed in. |
 | AC-26 | Google sign-in fails (cancelled, no account, unverified) | I land on `/login?error=…` | The matching message from §3.2 is shown. |
-| AC-27 | Signed in | I click **Log out** | The header shows **Log in**, and the feed reloads newest-first. |
+| AC-27 | Signed in | I click **Log out** | The header shows **Log in**, and the feed reloads newest-first (see CL-001). |
 | AC-28 | Signed in | I open `/login` | I am redirected to `/`. |
 | AC-29 | Signed in | I reload the page | I am still signed in. |
 | AC-30 | Keyboard only | I use the Log in page | Every field and button is reachable with Tab, has a visible label and focus outline, and Enter submits the form. |
+| AC-31 | Signed in, with a post open at `/posts/{id}` | I click **Log out** | The URL is `/`, no post is pinned, the header shows **Log in**, and the feed reloads newest-first ([CL-001](clarification_001.md)). |
 
 ---
 
@@ -359,7 +361,7 @@ No view needs protection yet, so nothing below is implemented in this spec. It r
 
 **Static checks (frontend)**: `cd frontend && npm run lint` and `npm run build`.
 
-**Manual**: run `bin/rails server -p 3000` and `npm run dev` with a configured Auth0 tenant, then go through AC-22 to AC-30 in Chrome, Edge or Firefox (not Safari, §10). AC-21 is checked with `bin/rails runner`.
+**Manual**: run `bin/rails server -p 3000` and `npm run dev` with a configured Auth0 tenant, then go through AC-22 to AC-31 in Chrome, Edge or Firefox (not Safari, §10). AC-21 is checked with `bin/rails runner`.
 
 ---
 

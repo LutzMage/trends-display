@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
+import { useNavigate } from 'react-router'
 import { fetchMe, signIn as requestSignIn, signOut as requestSignOut, type User } from '../api/auth'
 import { AuthContext, type AuthStatus } from './AuthContext'
 
@@ -6,6 +7,7 @@ import { AuthContext, type AuthStatus } from './AuthContext'
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [status, setStatus] = useState<AuthStatus>('loading')
+  const navigate = useNavigate()
 
   useEffect(() => {
     const controller = new AbortController()
@@ -28,6 +30,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signOut() {
+    // Close any open post first: it was pinned on the personalised feed (CL-001). Replace, so Back doesn't reopen it.
+    void navigate('/', { replace: true })
     // Sign out locally even if the request fails; the next GET /api/me shows the real state.
     await requestSignOut().catch(() => {})
     setUser(null)
