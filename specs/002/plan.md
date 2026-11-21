@@ -134,9 +134,9 @@ Run the tests until they pass, then run `bin/rubocop -a`.
 | `src/api/feed.ts` | Add `credentials: 'include'`. Remove `userId` from `FetchFeedParams` and `fetchFeed`. |
 | `src/api/posts.ts` | Add `credentials: 'include'`. |
 | `src/hooks/useFeed.ts` | Remove the `userId` option and its dependency. |
-| `src/auth/AuthProvider.tsx` (new) | <ul><li>Context `{ user, status, signIn, signOut }`.</li><li>On mount, `fetchMe` with an `AbortController`: success → `'signed-in'`, `null` → `'signed-out'`, and an error → `'signed-out'` (the feed still works anonymously).</li><li>`signIn` sets the user. `signOut` calls the API, ignores its errors, and clears the user.</li><li>Exports `useAuth()`, which throws outside the provider.</li></ul> |
+| `src/auth/AuthProvider.tsx` (new) | <ul><li>Context `{ user, status, signIn, signOut }`.</li><li>On mount, `fetchMe` with an `AbortController`: success → `'signed-in'`, `null` → `'signed-out'`, and an error → `'signed-out'` (the feed still works anonymously).</li><li>`signIn` sets the user. `signOut` calls the API, ignores its errors, and clears the user.</li><li>The context and its types live in `src/auth/AuthContext.ts`, and `useAuth()` (which throws outside the provider) in `src/hooks/useAuth.ts`. Fast refresh needs a component file to export only components.</li></ul> |
 | `src/main.tsx` | `<BrowserRouter><AuthProvider><App /></AuthProvider></BrowserRouter>`. |
-| `src/App.tsx` | <ul><li>Add `<Route path="login" element={<LoginView />} />` as a sibling of the `/` layout route.</li><li>Render the feed layout as `<FeedView key={user?.id ?? 'anonymous'} />`, and only once `status !== 'loading'` (show the existing feed skeleton until then).</li></ul> The feed is then fetched once for the right user, and it reloads from the top whenever the user changes (spec §3.5). |
+| `src/App.tsx` | <ul><li>Add `<Route path="login" element={<LoginView />} />` as a sibling of the `/` layout route.</li><li>Render the feed layout as `<FeedView key={user?.id ?? 'anonymous'} />`, and only once `status !== 'loading'` (nothing is rendered until then; marked as a `shortcut:`, because `GET /api/me` is local and fast).</li></ul> The feed is then fetched once for the right user, and it reloads from the top whenever the user changes (spec §3.5). |
 | `src/views/LoginView.tsx` (new) | <ul><li>Spec §3.2: a labelled email and password, and a submit button disabled with the text "Logging in…" while busy.</li><li>An error `role="alert"`, including the `?error=` messages from a small map.</li><li>The password is cleared on failure.</li><li>"Continue with Google" is an `<a href={`${API_URL}/api/auth/google`}>`.</li><li>`<Navigate to="/" replace />` when signed in.</li><li>The same card style as `ViewPost` (`rounded-2xl bg-white shadow-sm ring-1 ring-black/5`).</li></ul> |
 | `src/views/FeedView.tsx` | Header right side (spec §3.3) using `useAuth()`. Nothing while loading; a `Log in` link; or `@username` plus a `Log out` button. Uses the existing focus-outline classes. |
 
@@ -200,7 +200,7 @@ Files touched:
 **Frontend** (9 files):
 - `api/{auth,feed,posts}.ts`
 - `hooks/useFeed.ts`
-- `auth/AuthProvider.tsx`
+- `auth/{AuthProvider.tsx,AuthContext.ts}`, `hooks/useAuth.ts`
 - `main.tsx`, `App.tsx`
 - `views/{LoginView,FeedView}.tsx`
 

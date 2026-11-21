@@ -8,7 +8,7 @@ export class PostNotFoundError extends Error {
 }
 
 export async function fetchPost(id: number, signal?: AbortSignal): Promise<FeedPost> {
-  const res = await fetch(`${API_URL}/api/posts/${id}`, { signal })
+  const res = await fetch(`${API_URL}/api/posts/${id}`, { credentials: 'include', signal })
   if (res.status === 404) throw new PostNotFoundError()
   if (!res.ok) throw new Error(`Post request failed (${res.status})`)
   return res.json()

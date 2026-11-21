@@ -218,8 +218,8 @@ Versions are taken from `backend/.ruby-version`, `backend/Gemfile.lock`, `fronte
 | Solid Cache | 1.0.10 | Database-backed `Rails.cache` |
 | Solid Cable | 4.0.2 | Database-backed Action Cable adapter (unused in PoC) |
 | rack-cors | 3.0.0 | CORS for the SPA |
-| bcrypt | ~> 3.1.7 (pending approval) | `has_secure_password` |
-| jwt (ruby-jwt) | pending approval | Session JWT (HS256), and verification of Auth0 ID tokens (RS256, JWKS) |
+| bcrypt | 3.1.22 | `has_secure_password` |
+| jwt (ruby-jwt) | 3.3.0 | Session JWT (HS256), and verification of Auth0 ID tokens (RS256, JWKS) |
 | image_processing / ruby-vips | ~> 1.2 / ~> 2.3 | Image normalisation (WebP/GIF → JPEG for vision model). Upload variants. |
 | dotenv | — | Environment configuration in development |
 | Kamal / Thruster | 2.12.0 / 0.1.26 | Container deployment and HTTP acceleration (available, not required for PoC) |
@@ -346,8 +346,8 @@ Under the project rules in `AGENTS.md`, no gem or npm package is installed witho
 
 | Dependency | Needed for | Notes |
 |------------|------------|-------|
-| `bcrypt` (gem) | FR-AUTH-01/02/07 | Enables `has_secure_password`. It is already commented out in the `Gemfile`. |
-| `jwt` (gem, ruby-jwt) | FR-AUTH-02/03/08 | Signs the session JWT and verifies Auth0's RS256 ID tokens. |
+| `bcrypt` (gem) | FR-AUTH-01/02/07 | Enables `has_secure_password`. Approved and installed in SPEC-002 (3.1.22). |
+| `jwt` (gem, ruby-jwt) | FR-AUTH-02/03/08 | Signs the session JWT and verifies Auth0's RS256 ID tokens. Approved and installed in SPEC-002 (3.3.0). |
 | `react-router` | Post detail and Create post views | Approved and installed in SPEC-001 (8.4.0). |
 
 Active Storage and `image_processing` / `ruby-vips` are already part of Rails or the Gemfile. File upload needs only the Active Storage install migration and a storage service (local disk in development).

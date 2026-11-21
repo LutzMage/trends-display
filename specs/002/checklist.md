@@ -61,24 +61,24 @@ Source: [plan.md](plan.md) · Spec: [002-authentication.md](002-authentication.m
 - [x] `before_action` for state-changing methods.
 
 ## Phase 6 — Frontend
-- [ ] `api/auth.ts`: `User`, `InvalidCredentialsError`, `signIn`, `signOut` and `fetchMe`.
-- [ ] `api/feed.ts` and `api/posts.ts`: `credentials: 'include'`; remove `userId`.
-- [ ] `hooks/useFeed.ts`: remove the `userId` option.
-- [ ] `auth/AuthProvider.tsx` and `useAuth()`.
-- [ ] `main.tsx`: wrap `App` in `AuthProvider`.
-- [ ] `App.tsx`: `/login` route; key `FeedView` by user id and wait for the auth status.
-- [ ] `LoginView.tsx`: the form, the `?error=` messages, the Google link, and the redirect when signed in.
-- [ ] `FeedView.tsx`: header Log in / `@username` + Log out.
+- [x] `api/auth.ts`: `User`, `InvalidCredentialsError`, `signIn`, `signOut` and `fetchMe`.
+- [x] `api/feed.ts` and `api/posts.ts`: `credentials: 'include'`; remove `userId`.
+- [x] `hooks/useFeed.ts`: remove the `userId` option.
+- [x] `auth/AuthProvider.tsx` and `useAuth()`.
+- [x] `main.tsx`: wrap `App` in `AuthProvider`.
+- [x] `App.tsx`: `/login` route; key `FeedView` by user id and wait for the auth status.
+- [x] `LoginView.tsx`: the form, the `?error=` messages, the Google link, and the redirect when signed in.
+- [x] `FeedView.tsx`: header Log in / `@username` + Log out.
 
 ## Phase 7 — Documentation
-- [ ] `README.md`: new env var names (no values), Auth0 setup pointer, auth endpoints, stack.
-- [ ] `intent.md` §9.1: installed bcrypt and jwt versions.
+- [x] `README.md`: new env var names (no values), Auth0 setup pointer, auth endpoints, stack.
+- [x] `intent.md` §9.1: installed bcrypt and jwt versions.
 
 ## Phase 8 — Quality gates
-- [ ] `cd backend && bin/rails test`
-- [ ] `cd backend && bin/rubocop -a && bin/brakeman && bin/bundler-audit`
-- [ ] `cd frontend && npx oxlint --fix && npm run lint`
-- [ ] `cd frontend && npm run build`
+- [x] `cd backend && bin/rails test`
+- [x] `cd backend && bin/rubocop -a && bin/brakeman && bin/bundler-audit`
+- [x] `cd frontend && npx oxlint --fix && npm run lint`
+- [x] `cd frontend && npm run build`
 - [ ] Push, and confirm CI is green (all four jobs).
 
 ## Phase 9 — Manual acceptance (Chrome, Edge or Firefox)
