@@ -57,8 +57,8 @@ Source: [plan.md](plan.md) · Spec: [002-authentication.md](002-authentication.m
 - [x] Tests green, and `bin/rubocop -a` is clean.
 
 ## Phase 5 — Origin check (Should)
-- [ ] Test (red): a foreign `Origin` on `POST`/`DELETE` → `403`; the SPA origin, no `Origin`, and `GET` all pass (AC-20).
-- [ ] `before_action` for state-changing methods.
+- [x] Test (red): a foreign `Origin` on `POST`/`DELETE` → `403`; the SPA origin, no `Origin`, and `GET` all pass (AC-20).
+- [x] `before_action` for state-changing methods.
 
 ## Phase 6 — Frontend
 - [ ] `api/auth.ts`: `User`, `InvalidCredentialsError`, `signIn`, `signOut` and `fetchMe`.
