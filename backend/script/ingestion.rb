@@ -46,6 +46,7 @@ def user_for(author)
   handle = author["handle"]
   User.find_or_create_by!(username: handle) do |u|
     u.email = "#{handle.parameterize}@example.com"
+    u.password = ENV.fetch("DEFAULT_USER_PASSWORD")
   end
 end
 

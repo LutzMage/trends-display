@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router'
 import { MasonryGrid } from '../components/MasonryGrid'
 import { PostCard } from '../components/PostCard'
 import { ViewPost } from '../components/ViewPost'
+import { useAuth } from '../hooks/useAuth'
 import { useColumnCount } from '../hooks/useColumnCount'
 import { useFeed } from '../hooks/useFeed'
 import { usePost } from '../hooks/usePost'
@@ -36,9 +37,12 @@ export function FeedView() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-6">
-      <h1 className="mb-6 text-2xl font-bold text-neutral-900">
-        <Link to="/">Trends</Link>
-      </h1>
+      <header className="mb-6 flex items-center justify-between gap-4">
+        <h1 className="text-2xl font-bold text-neutral-900">
+          <Link to="/">Trends</Link>
+        </h1>
+        <SessionControls />
+      </header>
 
       {status === 'loading' && posts.length === 0 && !postId && <FeedSkeleton columns={columns} />}
 
@@ -71,6 +75,38 @@ export function FeedView() {
         )}
       </div>
     </main>
+  )
+}
+
+const focusRing = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900'
+
+// App only renders the feed once the session check is done, so there is no loading state here.
+// Signing out changes the user, which remounts the feed (App keys it by user id).
+function SessionControls() {
+  const { user, signOut } = useAuth()
+
+  if (!user) {
+    return (
+      <Link
+        to="/login"
+        className={`rounded-full bg-neutral-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-neutral-700 ${focusRing}`}
+      >
+        Log in
+      </Link>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-3 text-sm">
+      <span className="font-medium text-neutral-700">@{user.username}</span>
+      <button
+        type="button"
+        onClick={() => void signOut()}
+        className={`rounded-full border border-neutral-300 px-4 py-1.5 font-medium text-neutral-900 hover:bg-neutral-100 ${focusRing}`}
+      >
+        Log out
+      </button>
+    </div>
   )
 }
 

@@ -3,7 +3,9 @@
 one:
   username: alice
   email: alice@example.com
+  password_digest: <%= BCrypt::Password.create("password", cost: BCrypt::Engine::MIN_COST) %>
 
 two:
   username: bob
   email: bob@example.com
+  password_digest: <%= BCrypt::Password.create("password", cost: BCrypt::Engine::MIN_COST) %>

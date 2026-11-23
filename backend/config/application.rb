@@ -28,5 +28,11 @@ module Backend
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+
+    # The session JWT travels in an HttpOnly cookie (SPEC-002), and API mode leaves cookies out.
+    config.middleware.use ActionDispatch::Cookies
+
+    # The SPA's origin: used by CORS and by redirects back from Google sign-in.
+    config.x.frontend_url = ENV.fetch("FRONTEND_URL", "http://localhost:5173")
   end
 end

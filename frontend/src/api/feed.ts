@@ -17,17 +17,16 @@ export type FeedPage = {
 type FetchFeedParams = {
   cursor?: string | null
   limit?: number
-  userId?: number
   signal?: AbortSignal
 }
 
-export async function fetchFeed({ cursor, limit, userId, signal }: FetchFeedParams = {}): Promise<FeedPage> {
+// Personalised for the signed-in user via the session cookie; newest first when anonymous.
+export async function fetchFeed({ cursor, limit, signal }: FetchFeedParams = {}): Promise<FeedPage> {
   const params = new URLSearchParams()
   if (cursor) params.set('cursor', cursor)
   if (limit) params.set('limit', String(limit))
-  if (userId) params.set('user_id', String(userId))
 
-  const res = await fetch(`${API_URL}/api/feed?${params}`, { signal })
+  const res = await fetch(`${API_URL}/api/feed?${params}`, { credentials: 'include', signal })
   if (!res.ok) throw new Error(`Feed request failed (${res.status})`)
   return res.json()
 }

@@ -4,9 +4,9 @@
 |--------------|-----------------------------------------|
 | Document     | Product intent / project foundation     |
 | Status       | Draft — Proof of Concept (PoC)          |
-| Version      | 0.1                                     |
+| Version      | 0.2                                     |
 | Owner        | Camilo C. Pacheco                       |
-| Last updated | 2026-10-19                              |
+| Last updated | 2026-11-20 (Google sign-in via Auth0, session cookie — SPEC-002) |
 
 ---
 
@@ -37,7 +37,7 @@ Discovery products succeed when users see content that matches their tastes with
 | G-3 | Capture **post interactions** (impression, open, dwell, like, save, share) and feed them back into the user profile asynchronously. |
 | G-4 | Let authenticated users **create posts** with text and an optional image, provided by URL or file upload. |
 | G-5 | Generate post **embeddings** (text + AI-generated image description) in background jobs. |
-| G-6 | Provide **basic authentication** (email + password) so that interactions and posts belong to a real user. |
+| G-6 | Provide **authentication** (email + password, and **Google** through Auth0) so that interactions and posts belong to a real user. |
 
 ### 2.3 Non-goals (for this PoC)
 - Production-grade scale, multi-region deployment or high availability.
@@ -45,7 +45,7 @@ Discovery products succeed when users see content that matches their tastes with
 - Social graph features: follows, boards/collections management, direct messages, notifications.
 - Real-time updates (WebSockets / Action Cable) in the feed.
 - Native mobile apps.
-- OAuth / social login, password reset by email, MFA.
+- Social login providers other than Google, password reset by email, MFA.
 
 ---
 
@@ -65,7 +65,7 @@ Discovery products succeed when users see content that matches their tastes with
 ### 4.1 In scope
 | Pillar | Capabilities |
 |--------|--------------|
-| **Authentication** | Sign up, sign in, sign out. The authenticated user identifies the caller in every API request. |
+| **Authentication** | Sign up, sign in (email + password, or Google through Auth0), sign out. The session is a backend-issued JWT in an HttpOnly cookie, and it identifies the caller in every API request. |
 | **Feed** | Personalised masonry feed, infinite scroll, cold-start fallback, loading/empty/error states. |
 | **Post interaction** | Post detail view; impression, click/open, dwell `view`, like, save and share events; asynchronous profile update. |
 | **Post creation** | Text (≤ 250 chars) plus an optional image, given as a URL **or** an uploaded file; asynchronous embedding generation. |
@@ -88,12 +88,13 @@ Priority uses MoSCoW: **M**ust, **S**hould, **C**ould, **W**on't (this PoC).
 | ID | Requirement | Priority |
 |----|-------------|----------|
 | FR-AUTH-01 | A visitor can sign up with `username`, `email` and `password`. Username and email must be unique, and the email must be valid. | M |
-| FR-AUTH-02 | A registered user can sign in with email + password and receives a session credential usable by the SPA. | M |
-| FR-AUTH-03 | A signed-in user can sign out, which invalidates the credential. | M |
+| FR-AUTH-02 | A registered user can sign in with email + password and receives a session credential usable by the SPA: a backend-signed JWT in an `HttpOnly`, `Secure`, `SameSite=Strict` cookie that JavaScript cannot read. | M |
+| FR-AUTH-03 | A signed-in user can sign out, which clears the cookie and revokes the token server-side. | M |
 | FR-AUTH-04 | The API identifies the current user from the credential. This **replaces** the temporary `user_id` query parameter used today by `GET /api/feed`. | M |
 | FR-AUTH-05 | Creating posts and recording interactions require authentication. Unauthenticated requests receive `401`. | M |
 | FR-AUTH-06 | Anonymous visitors can see the non-personalised (newest-first) feed. | S |
-| FR-AUTH-07 | Passwords are stored only as a secure hash in `users.password_digest`. | M |
+| FR-AUTH-07 | Every user has a password, stored only as a secure hash in `users.password_digest` (NOT NULL). | M |
+| FR-AUTH-08 | A user can sign in with **Google** through Auth0. The verified Google email is matched to an existing user. When nothing matches, sign-in is rejected and no user is created. | M |
 
 ### 5.2 Feed
 | ID | Requirement | Priority |
@@ -193,7 +194,7 @@ These values come from the current implementation and are part of the intent. Ch
 | NFR-03 | Resilience | Embedding jobs retry on connection refused / read timeout with polynomial back-off (5 attempts). The feed keeps working, unranked, while the AI service is down. |
 | NFR-04 | Resilience | An invalid or stale cursor restarts pagination from the top instead of failing. |
 | NFR-05 | Concurrency | Profile updates are limited to one concurrent job per user. |
-| NFR-06 | Security | CORS allows only the SPA origin (`http://localhost:5173` in development). Secrets live in `.env` / Rails credentials and are never committed. |
+| NFR-06 | Security | CORS allows only the SPA origin (`FRONTEND_URL`, `http://localhost:5173` in development), with credentials. Secrets (`JWT_SECRET`, `AUTH0_CLIENT_SECRET`, `DEFAULT_USER_PASSWORD`, …) live in `.env` / Rails credentials and are never committed. |
 | NFR-07 | Security | CI runs Brakeman and bundler-audit. Passwords are hashed and never logged (`filter_parameter_logging`). |
 | NFR-08 | Accessibility | Images have alt text (the post text). Errors use `role="alert"`. Interactive controls are keyboard-reachable. |
 | NFR-09 | Quality | Backend: Minitest suite and RuboCop (rails-omakase). Frontend: oxlint and `tsc` type-check on build. |
@@ -217,6 +218,8 @@ Versions are taken from `backend/.ruby-version`, `backend/Gemfile.lock`, `fronte
 | Solid Cache | 1.0.10 | Database-backed `Rails.cache` |
 | Solid Cable | 4.0.2 | Database-backed Action Cable adapter (unused in PoC) |
 | rack-cors | 3.0.0 | CORS for the SPA |
+| bcrypt | 3.1.22 | `has_secure_password` |
+| jwt (ruby-jwt) | 3.3.0 | Session JWT (HS256), and verification of Auth0 ID tokens (RS256, JWKS) |
 | image_processing / ruby-vips | ~> 1.2 / ~> 2.3 | Image normalisation (WebP/GIF → JPEG for vision model). Upload variants. |
 | dotenv | — | Environment configuration in development |
 | Kamal / Thruster | 2.12.0 / 0.1.26 | Container deployment and HTTP acceleration (available, not required for PoC) |
@@ -240,8 +243,9 @@ Versions are taken from `backend/.ruby-version`, `backend/Gemfile.lock`, `fronte
 | @vitejs/plugin-react | 6.1.1 | React integration for Vite |
 | Tailwind CSS (+ @tailwindcss/vite) | 4.3.3 | Utility-first styling |
 | oxlint | 1.82.0 | Linting |
+| React Router | 8.4.0 | Client-side routing (declarative mode) |
 
-There is no router or global state library yet. State lives in custom hooks (`useFeed`, `useColumnCount`).
+There is no global state library. State lives in custom hooks (`useFeed`, `useColumnCount`, `usePost`) and, from SPEC-002, a small `AuthProvider` React context for the session.
 
 ### 9.4 External AI service
 - An **OpenAI-compatible HTTP server** (LM Studio in development), called from `IaService`.
@@ -253,6 +257,11 @@ There is no router or global state library yet. State lives in custom hooks (`us
 - `script/handles_by_interest.rb` finds image-heavy public Bluesky accounts in five interest clusters: food, travel, crafting, arts and science.
 - `script/ingestion.rb` imports up to 30 image posts per account. Re-runs are idempotent: the script skips a post whose `media_url` already exists.
 - `script/fake_likes.rb` creates synthetic likes, so a test user's profile can be steered for demos.
+
+### 9.6 Identity provider
+- **Auth0** (Regular Web Application) with the **google-oauth2** connection, used only for Google sign-in (FR-AUTH-08).
+- The backend runs the OIDC Authorization Code flow with PKCE, verifies the ID token, and issues its own session cookie. The browser never holds Auth0 tokens.
+- Configuration: `AUTH0_DOMAIN`, `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`, `AUTH0_CALLBACK_URL`, `FRONTEND_URL`. Details are in [SPEC-002](../specs/002/002-authentication.md).
 
 ---
 
@@ -277,8 +286,11 @@ flowchart LR
   end
 
   AI["OpenAI-compatible AI service<br/>/embeddings · /chat/completions"]
+  IDP["Auth0<br/>(Google connection)"]
 
-  SPA -- JSON / HTTPS --> API
+  SPA -- JSON / HTTPS + session cookie --> API
+  SPA -. sign-in redirect .-> IDP
+  API -- code exchange / JWKS --> IDP
   API --> FQ --> PRIMARY
   API -- enqueue --> QUEUE
   QUEUE --> JOBS
@@ -294,7 +306,8 @@ flowchart LR
 ### 11.1 Data model (current)
 | Table | Key columns | Notes |
 |-------|-------------|-------|
-| `users` | `username` (unique), `email` (unique), `password_digest` | `password_digest` is ready for authentication. |
+| `users` | `username` (unique), `email` (unique), `password_digest` | `password_digest` becomes NOT NULL in SPEC-002, and emails are stored lower-case. |
+| `revoked_tokens` | `jti` (unique), `expires_at` | Added in SPEC-002: session JWTs revoked by sign-out. |
 | `posts` | `user_id`, `text` (≤ 250), `media_type`, `media_url` | Image posts store a URL. Uploads add an Active Storage attachment. |
 | `interactions` | `user_id`, `post_id`, `event_type`, `duration_ms` | Indexed by `(post_id, event_type)`. |
 | `embeddings` | polymorphic `embeddable`, `embedding_type`, `embedding_model`, `dimensions`, `vector(768)` | Types: `text`, `image`, `audio`, `video`, `semantic`, `user_profile`. |
@@ -307,7 +320,7 @@ File upload (FR-POST-04) adds the Active Storage tables (`active_storage_blobs`,
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/up` | Health check |
-| GET | `/api/feed?cursor=&limit=` | Returns `{ posts: FeedPost[], next_cursor: string \| null }`. Today the caller is identified by `user_id`; this becomes the authenticated user. |
+| GET | `/api/feed?cursor=&limit=` | Returns `{ posts: FeedPost[], next_cursor: string \| null }`. Today the caller is identified by `user_id`; SPEC-002 replaces it with the signed-in user from the session cookie. |
 | POST | `/api/posts` | Body `{ post: { text, media_type?, media_url? } }`. Returns `201` with the post, or `422` with `{ errors: string[] }`. |
 | GET | `/api/posts/:id` | Single post |
 
@@ -317,9 +330,11 @@ File upload (FR-POST-04) adds the Active Storage tables (`active_storage_blobs`,
 | Method | Path | Description |
 |--------|------|-------------|
 | POST | `/api/auth/sign_up` | `{ username, email, password }`. Returns `201` and a session credential. |
-| POST | `/api/auth/sign_in` | `{ email, password }`. Returns `200` and a session credential, or `401`. |
-| DELETE | `/api/auth/sign_out` | Invalidates the credential. Returns `204`. |
-| GET | `/api/me` | Current user |
+| POST | `/api/auth/sign_in` | `{ email, password }`. Returns `200` with the user and sets the session cookie, or `401`. (SPEC-002) |
+| DELETE | `/api/auth/sign_out` | Revokes the token and clears the cookie. Returns `204`. (SPEC-002) |
+| GET | `/api/me` | Current user, or `401`. (SPEC-002) |
+| GET | `/api/auth/google` | Redirects to Auth0 / Google. (SPEC-002) |
+| GET | `/api/auth/google/callback` | Auth0 callback. Sets the session cookie and redirects to the SPA, or to `/login?error=…`. (SPEC-002) |
 | POST | `/api/posts` (multipart) | Same as above, plus an optional `post[image]` file. `media_url` and `image` are mutually exclusive. |
 | POST | `/api/posts/:id/interactions` | `{ event_type, duration_ms? }`. Returns `201`, or `422` for an unknown event type. |
 
@@ -331,8 +346,9 @@ Under the project rules in `AGENTS.md`, no gem or npm package is installed witho
 
 | Dependency | Needed for | Notes |
 |------------|------------|-------|
-| `bcrypt` (gem) | FR-AUTH-01/02/07 | Enables `has_secure_password`. It is already commented out in the `Gemfile`. |
-| Frontend router (e.g. `react-router`) | Post detail and Create post views | Optional. A minimal history-based router could be written by hand instead. |
+| `bcrypt` (gem) | FR-AUTH-01/02/07 | Enables `has_secure_password`. Approved and installed in SPEC-002 (3.1.22). |
+| `jwt` (gem, ruby-jwt) | FR-AUTH-02/03/08 | Signs the session JWT and verifies Auth0's RS256 ID tokens. Approved and installed in SPEC-002 (3.3.0). |
+| `react-router` | Post detail and Create post views | Approved and installed in SPEC-001 (8.4.0). |
 
 Active Storage and `image_processing` / `ruby-vips` are already part of Rails or the Gemfile. File upload needs only the Active Storage install migration and a storage service (local disk in development).
 
@@ -350,6 +366,9 @@ Active Storage and `image_processing` / `ruby-vips` are already part of Rails or
 | Risk | Cold-start users see generic content. | Newest-first fallback. A future onboarding step could ask the user to pick interests. |
 | Risk | Seeded Bluesky content is third-party material. | Use it only for internal demos. Do not redistribute. |
 | Risk | No content moderation. | Out of scope. Ingestion filters NSFW-labelled accounts. |
+| Risk | Safari rejects `Secure` cookies on `http://localhost`. | Develop in Chrome, Edge or Firefox. Use HTTPS in production. |
+| Constraint | `SameSite=Strict` session cookies need the SPA and the API on the same site (a shared registrable domain). | Deploy them as, for example, `app.example.com` and `api.example.com`. |
+| Risk | All seeded users share one password (`DEFAULT_USER_PASSWORD`) until sign-up or password change exists. | Internal PoC only. Keep the variable private. |
 
 ---
 

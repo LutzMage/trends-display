@@ -3,7 +3,7 @@ import { fetchFeed, type FeedPost } from '../api/feed'
 
 type Status = 'idle' | 'loading' | 'error' | 'done'
 
-export function useFeed({ limit = 20, userId }: { limit?: number; userId?: number } = {}) {
+export function useFeed({ limit = 20 }: { limit?: number } = {}) {
   const [posts, setPosts] = useState<FeedPost[]>([])
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState<string | null>(null)
@@ -22,7 +22,7 @@ export function useFeed({ limit = 20, userId }: { limit?: number; userId?: numbe
     setError(null)
 
     try {
-      const page = await fetchFeed({ cursor: cursorRef.current, limit, userId, signal: controller.signal })
+      const page = await fetchFeed({ cursor: cursorRef.current, limit, signal: controller.signal })
       const fresh = page.posts.filter((p) => !seenRef.current.has(p.id))
       fresh.forEach((p) => seenRef.current.add(p.id))
 
@@ -37,7 +37,7 @@ export function useFeed({ limit = 20, userId }: { limit?: number; userId?: numbe
     } finally {
       if (inFlightRef.current === controller) inFlightRef.current = null
     }
-  }, [limit, userId])
+  }, [limit])
 
   useEffect(() => {
     void loadMore()
