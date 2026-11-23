@@ -110,8 +110,8 @@ function SessionControls() {
   )
 }
 
-function PinnedPost({ post, status, error, retry }: ReturnType<typeof usePost>) {
-  if (status === 'ready' && post) return <ViewPost key={post.id} post={post} />
+function PinnedPost({ post, status, error, retry, update }: ReturnType<typeof usePost>) {
+  if (status === 'ready' && post) return <ViewPost key={post.id} post={post} update={update} />
 
   if (status === 'not-found') {
     return (

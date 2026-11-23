@@ -62,12 +62,13 @@ Source: [plan.md](plan.md) · Spec: [003-interactions.md](003-interactions.md)
 - [x] `hooks/useComments.ts`.
 
 ## Phase 7 — Frontend components
-- [ ] `icons.tsx`: `DownloadIcon`, `BookmarkIcon`, `CloseIcon` and the six service logos.
-- [ ] `Avatar.tsx`.
-- [ ] `CommentsSection.tsx`.
-- [ ] `ShareDialog.tsx`.
-- [ ] `PostActions.tsx`.
-- [ ] `ViewPost.tsx` (actions, comments, `click` recording) and `FeedView.tsx` (`PinnedPost` passes `update`).
+- [x] `icons.tsx`: `DownloadIcon`, `BookmarkIcon`, `CloseIcon` and the six service logos.
+  - Logos from Simple Icons 16.38.1 (CC0-1.0); all six were available, so no initials fallback.
+- [x] `Avatar.tsx`.
+- [x] `CommentsSection.tsx`.
+- [x] `ShareDialog.tsx`.
+- [x] `PostActions.tsx`.
+- [x] `ViewPost.tsx` (actions, comments, `click` recording) and `FeedView.tsx` (`PinnedPost` passes `update`).
 
 ## Phase 8 — Documentation
 - [ ] `intent/intent.md`: spec §6.5 changes, v0.3.
