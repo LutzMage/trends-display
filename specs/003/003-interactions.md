@@ -224,7 +224,7 @@ All responses are JSON unless stated. "Comment" means `{ "id", "body", "created_
 - **Idempotent toggles:**
   - `PUT` uses `find_or_create_by!` on `(user, post, event_type)`. A concurrent duplicate insert raises `RecordNotUnique`, which is rescued and treated as success.
   - `DELETE` uses `destroy_by`.
-- **`Interaction`:** add `download` to the enum, and add `after_destroy_commit :enqueue_profile_update, if: :affects_profile?`.
+- **`Interaction`:** add `download` to the enum, and enqueue the profile update on destroy too: `after_commit :enqueue_profile_update, on: [ :create, :destroy ], if: :affects_profile?`.
 - **`UserProfileBuilder::WEIGHTS`:** add `"download" => 1.5`.
 - **`Comment` model:**
   - `belongs_to :user` and `belongs_to :post`;

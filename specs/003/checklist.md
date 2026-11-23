@@ -13,16 +13,18 @@ Source: [plan.md](plan.md) · Spec: [003-interactions.md](003-interactions.md)
   - 2026-11-23: 10 likes, 0 saves, **0 duplicates**. The migration will delete nothing.
 
 ## Phase 1 — Data model (test first)
-- [ ] Test (red): `Comment` validations, strip, the `comment` interaction on create, and `api_json` (AC-09, AC-10).
-- [ ] `comments.yml`: three comments on `posts(:one)`, 3, 2 and 1 days old.
-- [ ] Migration `CreateComments`, the `Comment` model, and `has_many :comments` on `Post` and `User`.
-- [ ] Test (red): `download` type enqueues a profile update; destroying a like or save enqueues one; a duplicate like or save is rejected; a duplicate click is not (AC-15).
-- [ ] Migration `AddUniqueLikeAndSaveToInteractions`: delete duplicates (oldest kept, count printed), then the partial unique index.
-- [ ] `Interaction`: the `download` enum value and `after_destroy_commit`. `UserProfileBuilder::WEIGHTS`: `download` 1.5.
-- [ ] Tests green, and `bin/rubocop -a` is clean.
+- [x] Test (red): `Comment` validations, strip, the `comment` interaction on create, and `api_json` (AC-09, AC-10).
+- [x] `comments.yml`: three comments on `posts(:one)`, 3, 2 and 1 days old.
+- [x] Migration `CreateComments`, the `Comment` model, and `has_many :comments` on `Post` and `User`.
+- [x] Test (red): `download` type enqueues a profile update; destroying a like or save enqueues one; a duplicate like or save is rejected; a duplicate click is not (AC-15).
+- [x] Migration `AddUniqueLikeAndSaveToInteractions`: delete duplicates (oldest kept, count printed), then the partial unique index.
+- [x] `Interaction`: the `download` enum value and `after_destroy_commit`. `UserProfileBuilder::WEIGHTS`: `download` 1.5.
+  - Done as one `after_commit … on: [ :create, :destroy ]`: separate `after_create_commit` and `after_destroy_commit` callbacks for the same method override each other.
+- [x] Tests green, and `bin/rubocop -a` is clean.
+  - 2026-11-23: `78 runs, 222 assertions, 0 failures`.
 
 ## Phase 2 — Post detail (test first)
-- [ ] Test (red): `GET /api/posts/:id` returns `like_count`, `comment_count`, `liked` and `saved`, both anonymous and signed in; update the exact-keys test (AC-01, AC-02).
+- [x] Test (red): `GET /api/posts/:id` returns `like_count`, `comment_count`, `liked` and `saved`, both anonymous and signed in; update the exact-keys test (AC-01, AC-02).
 - [ ] `PostScoped` concern: move the `404` rescue out of `PostsController`, and add the lazy `current_post`.
 - [ ] `Post#detail_json(viewer)` and `PostsController#show`.
 - [ ] Tests green, and `bin/rubocop -a` is clean.

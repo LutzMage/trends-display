@@ -4,6 +4,7 @@ class Post < ApplicationRecord
 
   belongs_to :user
   has_many :interactions, dependent: :destroy
+  has_many :comments, dependent: :destroy
   has_many :feed_items, dependent: :destroy
   has_many :embeddings, as: :embeddable, dependent: :destroy
 

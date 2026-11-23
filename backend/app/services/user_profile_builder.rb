@@ -1,15 +1,16 @@
 class UserProfileBuilder
   # Base weight per event. Impressions are left out: being shown a post says nothing.
   WEIGHTS = {
-    "click"   => 0.3,
-    "view"    => 0.5,
-    "watch"   => 0.8,
-    "like"    => 1.0,
-    "comment" => 1.2,
-    "save"    => 1.5,
-    "share"   => 1.5,
-    "dislike" => -1.0,
-    "skip"    => -0.3
+    "click"    => 0.3,
+    "view"     => 0.5,
+    "watch"    => 0.8,
+    "like"     => 1.0,
+    "comment"  => 1.2,
+    "save"     => 1.5,
+    "share"    => 1.5,
+    "download" => 1.5, # keeping the image is as strong a signal as saving it (SPEC-003 §4.3)
+    "dislike"  => -1.0,
+    "skip"     => -0.3
   }.freeze
 
   DWELL_EVENTS    = %w[view watch].freeze

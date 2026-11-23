@@ -56,7 +56,7 @@ The plan follows the project rules:
 |------|--------|----|
 | Test (red) `test/models/interaction_test.rb` | <ul><li>A `download` interaction is valid and enqueues `UpdateUserProfileJob` (which proves `download` is in `WEIGHTS`).</li><li>Destroying a `like` or a `save` enqueues `UpdateUserProfileJob`.</li><li>Inserting a second `like` (or `save`) for the same user and post raises `ActiveRecord::RecordNotUnique`.</li><li>A second `click` for the same pair is saved.</li></ul> | AC-15 |
 | Migration `AddUniqueLikeAndSaveToInteractions` | `up`: <ol><li>Delete the duplicate `like`/`save` rows, keeping the oldest per `(user_id, post_id, event_type)`, with a single `DELETE … USING` that compares `(created_at, id)`.</li><li>`say` how many rows were removed.</li><li>`add_index :interactions, [:user_id, :post_id, :event_type], unique: true, where: "event_type IN ('like', 'save')"`.</li></ol> `down`: remove the index only (deleted duplicates are not restored). | AC-15 |
-| `Interaction` | Add `download: "download"` to the enum. Add `after_destroy_commit :enqueue_profile_update, if: :affects_profile?`. | — |
+| `Interaction` | Add `download: "download"` to the enum. Replace `after_create_commit` with `after_commit :enqueue_profile_update, on: [ :create, :destroy ], if: :affects_profile?`. Separate `after_create_commit` and `after_destroy_commit` for the same method would override each other. | — |
 | `UserProfileBuilder::WEIGHTS` | Add `"download" => 1.5`. | — |
 
 ## 4. Phase 2 — Post detail (test first)
@@ -179,7 +179,7 @@ Test data: add 5 comments to one post through the UI, or with `bin/rails runner`
 - **`401` before `404`**: `current_post` is lazy, so authentication runs first. Don't turn it into a `before_action` placed ahead of `require_authentication`.
 - **Existing exact-keys test**: "show returns the post in feed shape" lists every key, so it changes in Phase 2.
 - **Race on like/save**: two concurrent `PUT`s can both miss the row. The unique index stops the second insert, and the rescue makes it a success.
-- **Profile jobs on cascade deletes**: `after_destroy_commit` also fires when a post or user is destroyed. For a destroyed user the job fails to deserialize. Neither deletion is a feature yet, so leave it.
+- **Profile jobs on cascade deletes**: the destroy callback also fires when a post or user is destroyed. For a destroyed user the job fails to deserialize. Neither deletion is a feature yet, so leave it.
 - **Clipboard then `window.open`**: the copy is awaited first, while the click's user activation is still valid. If a browser blocks the new tab, the link is still copied and the message still shows.
 - **StrictMode** runs effects twice in development. The ref guard (§9) keeps `click` to one row per opening. Check it in AC-25.
 - **Brakeman**: `send_data` with bytes fetched from a URL in user data may be flagged. The allowlist is the mitigation. If Brakeman still warns, document it in `config/brakeman.ignore` rather than weakening the check.
