@@ -3,7 +3,7 @@
 | Field        | Value |
 |--------------|-------|
 | Spec ID      | SPEC-003 |
-| Status       | Draft |
+| Status       | Implemented |
 | Branch       | `feature/add-interactions` |
 | Intent trace | FR-INT-01, FR-INT-03, FR-INT-05…09, new FR-INT-11 (comments) and FR-INT-12 (download), FR-AUTH-05 |
 | Deferred     | FR-INT-02 (`impression`), FR-INT-04 (dwell `view`), a list of saved posts |

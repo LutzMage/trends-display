@@ -4,9 +4,9 @@
 |--------------|-----------------------------------------|
 | Document     | Product intent / project foundation     |
 | Status       | Draft — Proof of Concept (PoC)          |
-| Version      | 0.2                                     |
+| Version      | 0.3                                     |
 | Owner        | Camilo C. Pacheco                       |
-| Last updated | 2026-11-20 (Google sign-in via Auth0, session cookie — SPEC-002) |
+| Last updated | 2026-11-23 (post interactions: like, save, comment, share, download — SPEC-003) |
 
 ---
 
@@ -67,16 +67,17 @@ Discovery products succeed when users see content that matches their tastes with
 |--------|--------------|
 | **Authentication** | Sign up, sign in (email + password, or Google through Auth0), sign out. The session is a backend-issued JWT in an HttpOnly cookie, and it identifies the caller in every API request. |
 | **Feed** | Personalised masonry feed, infinite scroll, cold-start fallback, loading/empty/error states. |
-| **Post interaction** | Post detail view; impression, click/open, dwell `view`, like, save and share events; asynchronous profile update. |
+| **Post interaction** | Post detail view; impression, click/open, dwell `view`, like, save, comment, share and download events; comments on posts; asynchronous profile update. |
 | **Post creation** | Text (≤ 250 chars) plus an optional image, given as a URL **or** an uploaded file; asynchronous embedding generation. |
 
 ### 4.2 Future scope (already modelled, not exposed in the PoC UI)
 | Item | Current state |
 |------|---------------|
-| `dislike`, `skip`, `comment`, `watch` events | Present in the `Interaction` enum and `UserProfileBuilder::WEIGHTS`. |
+| `dislike`, `skip`, `watch` events | Present in the `Interaction` enum and `UserProfileBuilder::WEIGHTS`. |
 | Video / audio posts | `Embedding` enum reserves `video` and `audio`. `Post.media_type` only allows `image`. |
 | Precomputed feeds | `feed_items` table exists (user, post, score, position). The current `FeedQuery` does not use it. |
-| Comments UI and threads | Not modelled beyond the `comment` event type. |
+| Comment replies, editing and deleting | Comments are flat and permanent (SPEC-003). |
+| Saved posts list | Saves are stored (SPEC-003), but nothing in the UI lists them yet. |
 
 ---
 
@@ -117,12 +118,14 @@ Priority uses MoSCoW: **M**ust, **S**hould, **C**ould, **W**on't (this PoC).
 | FR-INT-02 | The client records an `impression` when a card becomes visible in the viewport (at most once per post per session). | S |
 | FR-INT-03 | Opening the detail view records a `click`. | M |
 | FR-INT-04 | Leaving the detail view records a `view` with `duration_ms` (dwell time). | M |
-| FR-INT-05 | The user can **like** a post. | M |
-| FR-INT-06 | The user can **save** a post. | M |
-| FR-INT-07 | The user can **share** a post (copy link / Web Share API). The action is recorded as `share`. | S |
+| FR-INT-05 | The user can **like** a post, and undo it. A like is stored once per user and post, and a liked post shows a pink heart. | M |
+| FR-INT-06 | The user can **save** a post, and undo it. A save is stored once per user and post. | M |
+| FR-INT-07 | The user can **share** a post from a modal to Facebook, X, Instagram, Discord, Messenger or WhatsApp, or copy its link. The action is recorded as `share`. | S |
 | FR-INT-08 | Interactions are sent to a dedicated endpoint (see §11.2). Sending must not block the UI, and failures must not break navigation. | M |
 | FR-INT-09 | Every profile-affecting interaction enqueues an **asynchronous user-profile update** (`UpdateUserProfileJob`), with at most one concurrent update per user. | M |
 | FR-INT-10 | Later feed requests reflect the updated profile. No page reload is needed beyond fetching the feed again. | S |
+| FR-INT-11 | The open post shows its **comments**, newest first, with the author's initials avatar and `@username`. A signed-in user can add a comment, which is recorded as `comment`. | M |
+| FR-INT-12 | The user can **download** the image of an image post as a file. The action is recorded as `download`. | M |
 
 ### 5.4 Post creation
 | ID | Requirement | Priority |
@@ -152,7 +155,11 @@ These values come from the current implementation and are part of the intent. Ch
 | Ranking metric | Cosine distance (`<=>`) on `text` post embeddings, ties broken by embedding id | `FeedQuery#ranked` |
 | Fallback order | `posts.id DESC` | `FeedQuery#recent` |
 | Own posts | Excluded from own feed | `FeedQuery` |
-| Signal weights | click 0.3 · view 0.5 · watch 0.8 · like 1.0 · comment 1.2 · save 1.5 · share 1.5 · dislike −1.0 · skip −0.3 | `UserProfileBuilder::WEIGHTS` |
+| Signal weights | click 0.3 · view 0.5 · watch 0.8 · like 1.0 · comment 1.2 · save 1.5 · share 1.5 · download 1.5 · dislike −1.0 · skip −0.3 | `UserProfileBuilder::WEIGHTS` |
+| Likes and saves | At most one per user and post. Undoing deletes the row, which removes its signal from the profile. | Partial unique index on `interactions` |
+| Comment length | 1–250 characters, after trimming spaces | `Comment` validation, `comments.body limit: 250` |
+| Comment list | Newest first, at most 100 | `Api::CommentsController::LIMIT` |
+| Image download | Only `https` URLs on `DOWNLOAD_HOSTS` (default `cdn.bsky.app`) are fetched; JPEG, PNG, WebP or GIF, at most 10 MB | `ImageDownload` |
 | Impressions | Recorded but **do not** affect the profile | `UserProfileBuilder::WEIGHTS` |
 | Dwell scaling (`view`, `watch`) | 0 below 1 s, linear to full weight at 15 s. Unknown duration gets half credit. | `UserProfileBuilder#dwell_factor` |
 | Authored posts | Each of the user's last 50 posts adds weight 1.0 | `UserProfileBuilder::OWN_POST_WEIGHT` |
@@ -220,7 +227,7 @@ Versions are taken from `backend/.ruby-version`, `backend/Gemfile.lock`, `fronte
 | rack-cors | 3.0.0 | CORS for the SPA |
 | bcrypt | 3.1.22 | `has_secure_password` |
 | jwt (ruby-jwt) | 3.3.0 | Session JWT (HS256), and verification of Auth0 ID tokens (RS256, JWKS) |
-| image_processing / ruby-vips | ~> 1.2 / ~> 2.3 | Image normalisation (WebP/GIF → JPEG for vision model). Upload variants. |
+| image_processing / ruby-vips | ~> 2.2 / ~> 2.3 | Image normalisation (WebP/GIF → JPEG for vision model). Upload variants. |
 | dotenv | — | Environment configuration in development |
 | Kamal / Thruster | 2.12.0 / 0.1.26 | Container deployment and HTTP acceleration (available, not required for PoC) |
 | RuboCop (rails-omakase) | 1.91.0 | Linting |
@@ -309,7 +316,8 @@ flowchart LR
 | `users` | `username` (unique), `email` (unique), `password_digest` | `password_digest` becomes NOT NULL in SPEC-002, and emails are stored lower-case. |
 | `revoked_tokens` | `jti` (unique), `expires_at` | Added in SPEC-002: session JWTs revoked by sign-out. |
 | `posts` | `user_id`, `text` (≤ 250), `media_type`, `media_url` | Image posts store a URL. Uploads add an Active Storage attachment. |
-| `interactions` | `user_id`, `post_id`, `event_type`, `duration_ms` | Indexed by `(post_id, event_type)`. |
+| `interactions` | `user_id`, `post_id`, `event_type`, `duration_ms` | Indexed by `(post_id, event_type)`. Unique `(user_id, post_id, event_type)` for `like` and `save` (SPEC-003). |
+| `comments` | `user_id`, `post_id`, `body` (≤ 250) | Indexed by `(post_id, created_at)`. Added in SPEC-003. |
 | `embeddings` | polymorphic `embeddable`, `embedding_type`, `embedding_model`, `dimensions`, `vector(768)` | Types: `text`, `image`, `audio`, `video`, `semantic`, `user_profile`. |
 | `feed_items` | `user_id`, `post_id`, `score`, `position` (unique per user) | Reserved for precomputed feeds. |
 
@@ -322,7 +330,13 @@ File upload (FR-POST-04) adds the Active Storage tables (`active_storage_blobs`,
 | GET | `/up` | Health check |
 | GET | `/api/feed?cursor=&limit=` | Returns `{ posts: FeedPost[], next_cursor: string \| null }`. Today the caller is identified by `user_id`; SPEC-002 replaces it with the signed-in user from the session cookie. |
 | POST | `/api/posts` | Body `{ post: { text, media_type?, media_url? } }`. Returns `201` with the post, or `422` with `{ errors: string[] }`. |
-| GET | `/api/posts/:id` | Single post |
+| GET | `/api/posts/:id` | Single post, plus `like_count`, `comment_count`, `liked` and `saved` (SPEC-003) |
+| PUT / DELETE | `/api/posts/:id/like` | Like or unlike. Returns `{ liked, like_count }`. (SPEC-003) |
+| PUT / DELETE | `/api/posts/:id/save` | Save or unsave. Returns `{ saved }`. (SPEC-003) |
+| GET | `/api/posts/:id/comments` | `{ comments: Comment[] }`, newest first. (SPEC-003) |
+| POST | `/api/posts/:id/comments` | `{ comment: { body } }`. Returns `201`, or `422` with `{ errors: string[] }`. (SPEC-003) |
+| POST | `/api/posts/:id/interactions` | `{ event_type }` for `click`, `share` or `download`. Returns `201`, or `422` for any other type. (SPEC-003) |
+| GET | `/api/posts/:id/download` | The image as an attachment, or `404` (no image), `422` (host not allowed), `502` (unavailable). (SPEC-003) |
 
 `FeedPost` shape: `{ id, text, media_type: "image" | null, media_url: string | null, created_at, user: { id, username } }`.
 
@@ -336,7 +350,6 @@ File upload (FR-POST-04) adds the Active Storage tables (`active_storage_blobs`,
 | GET | `/api/auth/google` | Redirects to Auth0 / Google. (SPEC-002) |
 | GET | `/api/auth/google/callback` | Auth0 callback. Sets the session cookie and redirects to the SPA, or to `/login?error=…`. (SPEC-002) |
 | POST | `/api/posts` (multipart) | Same as above, plus an optional `post[image]` file. `media_url` and `image` are mutually exclusive. |
-| POST | `/api/posts/:id/interactions` | `{ event_type, duration_ms? }`. Returns `201`, or `422` for an unknown event type. |
 
 ---
 
@@ -378,7 +391,7 @@ The PoC is successful when:
 
 1. **Personalisation is visible.** After a seeded user likes or saves 6–9 posts from one interest cluster, at least 60 % of the first feed page comes from that cluster. Before those interactions, the share is roughly 20 % (1 of 5 clusters).
 2. **Pipeline closes the loop.** A newly created post, by URL or upload, gets its embeddings within 30 s while the AI service is up, and can then appear in another user's personalised feed.
-3. **Interactions are captured.** Click, dwell, like, save and share from the UI are persisted with the correct `event_type` and `duration_ms`.
+3. **Interactions are captured.** Click, dwell, like, save, comment, share and download from the UI are persisted with the correct `event_type` and `duration_ms`.
 4. **Auth gates actions.** Anonymous users cannot create posts or record interactions. Signed-in users never see their own posts in the feed.
 5. **Quality gates pass.** `bin/rails test`, `bin/rubocop` and `npm run lint` are green.
 

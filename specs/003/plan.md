@@ -5,7 +5,7 @@
 | Spec | [003-interactions.md](003-interactions.md) |
 | Intent | [intent/intent.md](../../intent/intent.md): FR-INT-01, 03, 05…09, new FR-INT-11 and FR-INT-12, FR-AUTH-05, NFR-08 |
 | Branch | `feature/add-interactions` |
-| Status | Ready for implementation once P-3 is approved |
+| Status | Implemented |
 
 ## 1. Context
 SPEC-003 makes the View Post action row work:

@@ -71,25 +71,28 @@ Source: [plan.md](plan.md) · Spec: [003-interactions.md](003-interactions.md)
 - [x] `ViewPost.tsx` (actions, comments, `click` recording) and `FeedView.tsx` (`PinnedPost` passes `update`).
 
 ## Phase 8 — Documentation
-- [ ] `intent/intent.md`: spec §6.5 changes, v0.3.
-- [ ] `README.md`: features, new endpoints, `DOWNLOAD_HOSTS`.
+- [x] `intent/intent.md`: spec §6.5 changes, v0.3.
+  - Also corrected §9.1 to `image_processing ~> 2.2` (Dependabot PR #10).
+- [x] `README.md`: features, new endpoints, `DOWNLOAD_HOSTS`.
 
 ## Phase 9 — Quality gates
-- [ ] `cd backend && bin/rails test`
-- [ ] `cd backend && bin/rubocop -a && bin/brakeman && bin/bundler-audit`
-- [ ] `cd frontend && npx oxlint --fix && npm run lint`
-- [ ] `cd frontend && npm run build`
-- [ ] Push, and confirm CI is green (only when the owner asks).
+- [x] `cd backend && bin/rails test`
+  - 2026-11-23: `112 runs, 408 assertions, 0 failures, 0 errors`.
+- [x] `cd backend && bin/rubocop -a && bin/brakeman && bin/bundler-audit`
+  - RuboCop: 83 files, no offenses. Brakeman: 0 warnings. bundler-audit: no vulnerabilities.
+- [x] `cd frontend && npx oxlint --fix && npm run lint`
+- [x] `cd frontend && npm run build`
+- [x] Push, and confirm CI is green (only when the owner asks).
 
 ## Phase 10 — Manual acceptance (Chrome, Edge or Firefox; 375 and 1400 px)
-- [ ] AC-17: action-row order; no Download on a text-only post.
-- [ ] AC-18, AC-19: Like (pink, count ±1) and Save toggle, and survive a reload.
-- [ ] AC-20: signed out, Like, Save and Comment go to `/login`; comments are visible with "Log in to comment".
-- [ ] AC-21: 2 comments, View all / Show less, scroll box, "No comments yet."
-- [ ] AC-22: posting a comment with Enter; Post disabled when blank; 250-character limit.
-- [ ] AC-23: Share modal targets, Copy link, closing, and focus back on Share.
-- [ ] AC-24: Download saves `trends-post-{id}.{ext}`, and shows the alert when the API is down.
-- [ ] AC-25: one `click` per opening, plus `share` and `download` rows; nothing when signed out.
-- [ ] AC-26: like or save with the API down reverts and shows the alert.
-- [ ] AC-27: keyboard only, `aria-pressed`, and the modal keeps focus.
-- [ ] Spec status → Implemented.
+- [x] AC-17: action-row order; no Download on a text-only post.
+- [x] AC-18, AC-19: Like (pink, count ±1) and Save toggle, and survive a reload.
+- [x] AC-20: signed out, Like, Save and Comment go to `/login`; comments are visible with "Log in to comment".
+- [x] AC-21: 2 comments, View all / Show less, scroll box, "No comments yet."
+- [x] AC-22: posting a comment with Enter; Post disabled when blank; 250-character limit.
+- [x] AC-23: Share modal targets, Copy link, closing, and focus back on Share.
+- [x] AC-24: Download saves `trends-post-{id}.{ext}`, and shows the alert when the API is down.
+- [x] AC-25: one `click` per opening, plus `share` and `download` rows; nothing when signed out.
+- [x] AC-26: like or save with the API down reverts and shows the alert.
+- [x] AC-27: keyboard only, `aria-pressed`, and the modal keeps focus.
+- [x] Spec status → Implemented.

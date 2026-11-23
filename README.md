@@ -22,9 +22,10 @@ A Pinterest-like visual discovery feed. Users browse a masonry grid of image and
 - **Embedding pipeline**: background jobs embed post text and an AI-generated description of each image.
 - **User profiles** built from weighted, time-decayed interaction signals (like, save, share, dwell time…).
 - **Post detail view** pinned in the grid at `/posts/:id`, with deep links, loading/not-found/error states and an entrance animation.
+- **Interactions** on the open post: like (pink heart) and save, both undoable; comments with initials avatars; a share modal for Facebook, X, Instagram, Discord, Messenger and WhatsApp with Copy link; and image download. Each action feeds the user's profile.
 - **Authentication**: sign in with email + password or with Google (Auth0). The backend issues a JWT in an `HttpOnly`, `Secure`, `SameSite=Strict` cookie, revokes it on sign-out, rate-limits sign-in and rejects cross-site writes. The feed is personalised for the signed-in user.
 
-**Planned:** sign-up, interaction tracking from the UI, and post creation with image upload. See [`intent/intent.md`](intent/intent.md).
+**Planned:** sign-up, impression and dwell-time tracking, a saved-posts page, and post creation with image upload. See [`intent/intent.md`](intent/intent.md).
 
 ## Architecture
 
@@ -66,6 +67,7 @@ AUTH0_CALLBACK_URL="http://localhost:3000/api/auth/google/callback"
 # Optional, defaults shown:
 # BACKEND_DATABASE_USERNAME=trends_display
 # BACKEND_DATABASE_PASSWORD=devpassword
+# DOWNLOAD_HOSTS=cdn.bsky.app                       # comma-separated image hosts the download endpoint may fetch from
 ```
 
 The frontend reads `VITE_API_URL` (default `http://localhost:3000`).
@@ -123,8 +125,14 @@ Seeded users sign in with their email and `DEFAULT_USER_PASSWORD`. To see a stee
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/api/feed?cursor=&limit=` | Feed page: `{ posts, next_cursor }`. Ranked for the signed-in user, newest first when anonymous. |
-| GET | `/api/posts/:id` | Single post |
+| GET | `/api/posts/:id` | Single post, with `like_count`, `comment_count`, and the viewer's `liked` and `saved` |
 | POST | `/api/posts` | Create a post as the signed-in user (`{ post: { text, media_type?, media_url? } }`). `401` when signed out. |
+| PUT / DELETE | `/api/posts/:id/like` | Like or unlike (signed in). Returns `{ liked, like_count }`. |
+| PUT / DELETE | `/api/posts/:id/save` | Save or unsave (signed in). Returns `{ saved }`. |
+| GET | `/api/posts/:id/comments` | `{ comments }`: the 100 newest, each with its author. |
+| POST | `/api/posts/:id/comments` | Add a comment as the signed-in user (`{ comment: { body } }`, 1–250 characters). |
+| POST | `/api/posts/:id/interactions` | Record `click`, `share` or `download` for the signed-in user (`{ event_type }`). |
+| GET | `/api/posts/:id/download` | The post's image as a file. Only fetched from `DOWNLOAD_HOSTS`. |
 | POST | `/api/auth/sign_in` | `{ email, password }` → the user, and sets the `td_session` cookie. Limited to 10 attempts per 3 minutes per IP. |
 | DELETE | `/api/auth/sign_out` | Revokes the session and clears the cookie (`204`). |
 | GET | `/api/me` | The signed-in user, or `401`. |
