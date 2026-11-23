@@ -56,10 +56,10 @@ Source: [plan.md](plan.md) · Spec: [003-interactions.md](003-interactions.md)
   - 2026-11-23: `112 runs, 408 assertions, 0 failures`.
 
 ## Phase 6 — Frontend data layer
-- [ ] `api/posts.ts`: `PostStats` and `Post` types; `fetchPost` returns the stats.
-- [ ] `api/interactions.ts`: `setLiked`, `setSaved`, `fetchComments`, `createComment`, `recordInteraction` and `downloadImage`.
-- [ ] `hooks/usePost.ts`: `update(patch)`.
-- [ ] `hooks/useComments.ts`.
+- [x] `api/posts.ts`: `PostStats` and `Post` types; `fetchPost` returns the stats.
+- [x] `api/interactions.ts`: `setLiked`, `setSaved`, `fetchComments`, `createComment`, `recordInteraction` and `downloadImage`.
+- [x] `hooks/usePost.ts`: `update(patch)`.
+- [x] `hooks/useComments.ts`.
 
 ## Phase 7 — Frontend components
 - [ ] `icons.tsx`: `DownloadIcon`, `BookmarkIcon`, `CloseIcon` and the six service logos.
