@@ -66,6 +66,59 @@ class Api::PostsControllerTest < ActionDispatch::IntegrationTest
     assert_equal({ "error" => "Post not found" }, response.parsed_body)
   end
 
+  test "download sends the post's image as an attachment" do
+    image = ImageDownload::Image.new(body: "jpeg-bytes", content_type: "image/jpeg")
+    fetch_image = ->(url) {
+      assert_equal posts(:one).media_url, url
+      image
+    }
+
+    stub_singleton(ImageDownload, :fetch, fetch_image) do
+      get download_api_post_url(posts(:one))
+    end
+
+    assert_response :ok
+    assert_equal "jpeg-bytes", response.body
+    assert_equal "image/jpeg", response.media_type
+    assert_match(/\Aattachment; filename="trends-post-#{posts(:one).id}\.jpg"/, response.headers["Content-Disposition"])
+  end
+
+  test "download of a text-only post returns 404" do
+    get download_api_post_url(posts(:two))
+
+    assert_response :not_found
+    assert_equal({ "error" => "Post has no image" }, response.parsed_body)
+  end
+
+  test "download of an image on a host that isn't allowed returns 422 without requesting it" do
+    no_request = ->(uri) { flunk "unexpected request to #{uri}" }
+
+    stub_singleton(ImageDownload, :get, no_request) do
+      get download_api_post_url(posts(:one)) # https://example.com/one.jpg is not in DOWNLOAD_HOSTS
+    end
+
+    assert_response :unprocessable_entity
+    assert_equal({ "error" => "Download is not available for this image" }, response.parsed_body)
+  end
+
+  test "download returns 502 when the image can't be fetched" do
+    unavailable = ->(_url) { raise ImageDownload::Unavailable, "HTTP 404" }
+
+    stub_singleton(ImageDownload, :fetch, unavailable) do
+      get download_api_post_url(posts(:one))
+    end
+
+    assert_response :bad_gateway
+    assert_equal({ "error" => "Image unavailable" }, response.parsed_body)
+  end
+
+  test "download of an unknown post returns 404" do
+    get download_api_post_url(id: 0)
+
+    assert_response :not_found
+    assert_equal({ "error" => "Post not found" }, response.parsed_body)
+  end
+
   test "create requires a signed-in user" do
     assert_no_difference "Post.count" do
       post api_posts_url, params: { post: { text: "Hello", user_id: users(:one).id } }, as: :json

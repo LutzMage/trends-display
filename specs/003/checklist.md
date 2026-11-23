@@ -47,11 +47,13 @@ Source: [plan.md](plan.md) · Spec: [003-interactions.md](003-interactions.md)
   - 2026-11-23: `100 runs, 371 assertions, 0 failures`.
 
 ## Phase 5 — Download (test first)
-- [ ] Test (red): `ImageDownload`: allowlist (no request for other hosts or `http`), status, type, network error, and the 10 MB cap (AC-14).
-- [ ] `ImageDownload` service.
-- [ ] Test (red): `GET /api/posts/:id/download` → `200` attachment, `404` text-only, `422` host not allowed, `502` unavailable, `404` unknown post (AC-07, AC-13, AC-14).
-- [ ] Route and `PostsController#download`.
-- [ ] Tests green, and `bin/rubocop -a` is clean.
+- [x] Test (red): `ImageDownload`: allowlist (no request for other hosts or `http`), status, type, network error, and the 10 MB cap (AC-14).
+- [x] `ImageDownload` service.
+  - Live check 2026-11-23: a seeded `cdn.bsky.app` image downloads (image/webp, 546 KB); `example.com` is refused without a request.
+- [x] Test (red): `GET /api/posts/:id/download` → `200` attachment, `404` text-only, `422` host not allowed, `502` unavailable, `404` unknown post (AC-07, AC-13, AC-14).
+- [x] Route and `PostsController#download`.
+- [x] Tests green, and `bin/rubocop -a` is clean.
+  - 2026-11-23: `112 runs, 408 assertions, 0 failures`.
 
 ## Phase 6 — Frontend data layer
 - [ ] `api/posts.ts`: `PostStats` and `Post` types; `fetchPost` returns the stats.
