@@ -11,6 +11,8 @@ Rails.application.routes.draw do
       # PUT likes or saves, DELETE undoes it (SPEC-003 §5).
       resource :like, only: [ :update, :destroy ]
       resource :save, only: [ :update, :destroy ]
+      resources :comments, only: [ :index, :create ]
+      resources :interactions, only: :create
     end
 
     namespace :auth do

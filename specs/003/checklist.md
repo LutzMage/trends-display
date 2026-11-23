@@ -40,10 +40,11 @@ Source: [plan.md](plan.md) · Spec: [003-interactions.md](003-interactions.md)
 
 ## Phase 4 — Comments and interactions endpoints (test first)
 - [x] Test (red): comments `GET` newest first; `POST` `201`/`422`; anonymous `401`; unknown post `404` (AC-06…AC-10).
-- [ ] `Api::CommentsController` and its routes.
-- [ ] Test (red): interactions `click`/`share`/`download` → `201`; other types → `422`; anonymous `401`; unknown post `404` (AC-06, AC-07, AC-11, AC-12).
-- [ ] `Api::InteractionsController` and its route.
-- [ ] Tests green, and `bin/rubocop -a` is clean.
+- [x] `Api::CommentsController` and its routes.
+- [x] Test (red): interactions `click`/`share`/`download` → `201`; other types → `422`; anonymous `401`; unknown post `404` (AC-06, AC-07, AC-11, AC-12).
+- [x] `Api::InteractionsController` and its route.
+- [x] Tests green, and `bin/rubocop -a` is clean.
+  - 2026-11-23: `100 runs, 371 assertions, 0 failures`.
 
 ## Phase 5 — Download (test first)
 - [ ] Test (red): `ImageDownload`: allowlist (no request for other hosts or `http`), status, type, network error, and the 10 MB cap (AC-14).
