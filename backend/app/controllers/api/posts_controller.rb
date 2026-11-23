@@ -1,5 +1,6 @@
 class Api::PostsController < ApplicationController
-  rescue_from ActiveRecord::RecordNotFound, with: :post_not_found
+  include PostScoped
+
   before_action :require_authentication, only: :create
 
   def create
@@ -13,14 +14,10 @@ class Api::PostsController < ApplicationController
   end
 
   def show
-    render json: Post.includes(:user).find(params[:id]).feed_json
+    render json: current_post.detail_json(current_user)
   end
 
   private
-
-  def post_not_found
-    render json: { error: "Post not found" }, status: :not_found
-  end
 
   def post_params
     # No :user_id: the author is always the signed-in user (SPEC-002, AC-19).

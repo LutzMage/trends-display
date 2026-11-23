@@ -22,6 +22,16 @@ class Post < ApplicationRecord
     }
   end
 
+  # The open post: feed_json plus counts and the viewer's own like/save state. viewer is nil when anonymous.
+  def detail_json(viewer)
+    feed_json.merge(
+      like_count: interactions.like_event.count,
+      comment_count: comments.count,
+      liked: viewer.present? && interactions.like_event.exists?(user: viewer),
+      saved: viewer.present? && interactions.save_event.exists?(user: viewer)
+    )
+  end
+
   private
 
   def enqueue_embeddings

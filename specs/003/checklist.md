@@ -25,19 +25,21 @@ Source: [plan.md](plan.md) · Spec: [003-interactions.md](003-interactions.md)
 
 ## Phase 2 — Post detail (test first)
 - [x] Test (red): `GET /api/posts/:id` returns `like_count`, `comment_count`, `liked` and `saved`, both anonymous and signed in; update the exact-keys test (AC-01, AC-02).
-- [ ] `PostScoped` concern: move the `404` rescue out of `PostsController`, and add the lazy `current_post`.
-- [ ] `Post#detail_json(viewer)` and `PostsController#show`.
-- [ ] Tests green, and `bin/rubocop -a` is clean.
+- [x] `PostScoped` concern: move the `404` rescue out of `PostsController`, and add the lazy `current_post`.
+- [x] `Post#detail_json(viewer)` and `PostsController#show`.
+- [x] Tests green, and `bin/rubocop -a` is clean.
+  - 2026-11-23: `81 runs, 232 assertions, 0 failures`.
 
 ## Phase 3 — Like and save (test first)
-- [ ] Test (red): likes `PUT`/`DELETE`, idempotent with one job each; anonymous `401`; unknown post `404`; foreign origin `403` (AC-03, AC-04, AC-06, AC-07, AC-16).
-- [ ] Test (red): saves `PUT`/`DELETE`; anonymous `401`; unknown post `404` (AC-05, AC-06, AC-07).
-- [ ] Routes `resource :like` and `resource :save`, plus the `InteractionToggle` concern.
-- [ ] `Api::LikesController` and `Api::SavesController`.
-- [ ] Tests green, and `bin/rubocop -a` is clean.
+- [x] Test (red): likes `PUT`/`DELETE`, idempotent with one job each; anonymous `401`; unknown post `404`; foreign origin `403` (AC-03, AC-04, AC-06, AC-07, AC-16).
+- [x] Test (red): saves `PUT`/`DELETE`; anonymous `401`; unknown post `404` (AC-05, AC-06, AC-07).
+- [x] Routes `resource :like` and `resource :save`, plus the `InteractionToggle` concern.
+- [x] `Api::LikesController` and `Api::SavesController`.
+- [x] Tests green, and `bin/rubocop -a` is clean.
+  - 2026-11-23: `90 runs, 283 assertions, 0 failures`.
 
 ## Phase 4 — Comments and interactions endpoints (test first)
-- [ ] Test (red): comments `GET` newest first; `POST` `201`/`422`; anonymous `401`; unknown post `404` (AC-06…AC-10).
+- [x] Test (red): comments `GET` newest first; `POST` `201`/`422`; anonymous `401`; unknown post `404` (AC-06…AC-10).
 - [ ] `Api::CommentsController` and its routes.
 - [ ] Test (red): interactions `click`/`share`/`download` → `201`; other types → `422`; anonymous `401`; unknown post `404` (AC-06, AC-07, AC-11, AC-12).
 - [ ] `Api::InteractionsController` and its route.

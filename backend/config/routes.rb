@@ -7,7 +7,11 @@ Rails.application.routes.draw do
 
   namespace :api do
     get "/feed", to: "feed#index"
-    resources :posts, only: [ :create, :show ]
+    resources :posts, only: [ :create, :show ] do
+      # PUT likes or saves, DELETE undoes it (SPEC-003 §5).
+      resource :like, only: [ :update, :destroy ]
+      resource :save, only: [ :update, :destroy ]
+    end
 
     namespace :auth do
       post "sign_in", to: "sessions#create"
