@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+# Three comments on post one, a day apart, so newest-first order is testable (SPEC-003 AC-08).
+oldest:
+  user: two
+  post: one
+  body: Love the colours in this one.
+  created_at: <%= 3.days.ago.to_fs(:db) %>
+  updated_at: <%= 3.days.ago.to_fs(:db) %>
+
+middle:
+  user: one
+  post: one
+  body: Thanks! It took a whole afternoon.
+  created_at: <%= 2.days.ago.to_fs(:db) %>
+  updated_at: <%= 2.days.ago.to_fs(:db) %>
+
+newest:
+  user: one
+  post: one
+  body: Next one will be the same lake at night.
+  created_at: <%= 1.day.ago.to_fs(:db) %>
+  updated_at: <%= 1.day.ago.to_fs(:db) %>

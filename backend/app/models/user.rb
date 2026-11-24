@@ -6,6 +6,7 @@ class User < ApplicationRecord
 
   has_many :posts, dependent: :destroy
   has_many :interactions, dependent: :destroy
+  has_many :comments, dependent: :destroy
   has_many :feed_items, dependent: :destroy
   has_many :embeddings, as: :embeddable, dependent: :destroy
 

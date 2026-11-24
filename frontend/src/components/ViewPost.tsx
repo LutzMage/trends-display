@@ -1,21 +1,34 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
-import type { FeedPost } from '../api/feed'
-import { ArrowLeftIcon, CommentIcon, HeartIcon, ShareIcon } from './icons'
+import { recordInteraction } from '../api/interactions'
+import type { Post, PostStats } from '../api/posts'
+import { useAuth } from '../hooks/useAuth'
+import { CommentsSection } from './CommentsSection'
+import { ArrowLeftIcon } from './icons'
+import { PostActions } from './PostActions'
 import { TextCard } from './TextCard'
 
-const actionClass =
-  'inline-flex items-center gap-1.5 rounded-full p-2 text-neutral-700 transition hover:bg-neutral-100 hover:text-neutral-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900'
+type ViewPostProps = { post: Post; update: (patch: Partial<PostStats>) => void }
 
-type ViewPostProps = { post: FeedPost; likeCount?: number; commentCount?: number }
-
-export function ViewPost({ post, likeCount = 0, commentCount = 0 }: ViewPostProps) {
+export function ViewPost({ post, update }: ViewPostProps) {
   const [imageFailed, setImageFailed] = useState(false)
-  const showImage = post.media_type === 'image' && post.media_url && !imageFailed
+  const showImage = post.media_type === 'image' && Boolean(post.media_url) && !imageFailed
   const navigate = useNavigate()
   const location = useLocation()
   // 'default' is the entry the app was loaded on, so going back would leave the site.
   const goBack = () => (location.key === 'default' ? navigate('/') : navigate(-1))
+
+  const { user } = useAuth()
+  const commentInput = useRef<HTMLInputElement>(null)
+  const recordedClick = useRef<number | null>(null)
+
+  // One `click` per opening (SPEC-003 §3.8). PinnedPost keys ViewPost by post id, so each opening mounts afresh,
+  // and the ref survives StrictMode's second effect run in development.
+  useEffect(() => {
+    if (!user || recordedClick.current === post.id) return
+    recordedClick.current = post.id
+    recordInteraction(post.id, 'click')
+  }, [post.id, user])
 
   return (
     <article className="relative overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5 motion-safe:animate-pin-in">
@@ -42,20 +55,18 @@ export function ViewPost({ post, likeCount = 0, commentCount = 0 }: ViewPostProp
       <div className="space-y-3 p-4">
         {showImage && <p className="whitespace-pre-line text-neutral-800">{post.text}</p>}
 
-        {/* Visual only in SPEC-001: buttons have no handlers yet. */}
-        <div className="flex items-center gap-4">
-          <button type="button" aria-label="Like" className={actionClass}>
-            <HeartIcon />
-            <span>{likeCount}</span>
-          </button>
-          <button type="button" aria-label="Comment" className={actionClass}>
-            <CommentIcon />
-            <span>{commentCount}</span>
-          </button>
-          <button type="button" aria-label="Share" className={actionClass}>
-            <ShareIcon />
-          </button>
-        </div>
+        <PostActions
+          post={post}
+          update={update}
+          canDownload={showImage}
+          onComment={() => commentInput.current?.focus()}
+        />
+
+        <CommentsSection
+          postId={post.id}
+          inputRef={commentInput}
+          onAdded={() => update({ comment_count: (post.comment_count ?? 0) + 1 })}
+        />
       </div>
     </article>
   )

@@ -8,6 +8,7 @@ class Interaction < ApplicationRecord
     dislike: "dislike",
     save: "save",
     share: "share",
+    download: "download",
     comment: "comment",
     skip: "skip"
   }, suffix: :event, validate: true
@@ -17,7 +18,9 @@ class Interaction < ApplicationRecord
 
   validates :duration_ms, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
 
-  after_create_commit :enqueue_profile_update, if: :affects_profile?
+  # Unlike and unsave delete the row, so the profile must drop that signal too.
+  # One callback: after_create_commit and after_destroy_commit with the same method would override each other.
+  after_commit :enqueue_profile_update, on: [ :create, :destroy ], if: :affects_profile?
 
   private
 

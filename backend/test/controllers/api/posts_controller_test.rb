@@ -1,14 +1,14 @@
 require "test_helper"
 
 class Api::PostsControllerTest < ActionDispatch::IntegrationTest
-  test "show returns the post in feed shape" do
+  test "show returns the post in feed shape, plus its stats" do
     post = posts(:one)
 
     get api_post_url(post)
 
     assert_response :ok
     body = response.parsed_body
-    assert_equal %w[created_at id media_type media_url text user], body.keys.sort
+    assert_equal %w[comment_count created_at id like_count liked media_type media_url saved text user], body.keys.sort
     assert_equal post.id, body["id"]
     assert_equal post.text, body["text"]
     assert_equal "image", body["media_type"]
@@ -26,8 +26,94 @@ class Api::PostsControllerTest < ActionDispatch::IntegrationTest
     assert_equal users(:two).username, body.dig("user", "username")
   end
 
+  test "show counts likes and comments, and nothing is liked or saved when anonymous" do
+    get api_post_url(posts(:one)) # liked by users(:one) (interactions.yml), 3 comments (comments.yml)
+
+    assert_response :ok
+    body = response.parsed_body
+    assert_equal 1, body["like_count"]
+    assert_equal 3, body["comment_count"]
+    assert_equal false, body["liked"]
+    assert_equal false, body["saved"]
+  end
+
+  test "show tells the signed-in user that they liked and saved the post" do
+    Interaction.create!(user: users(:one), post: posts(:one), event_type: :save)
+    sign_in_as(users(:one))
+
+    get api_post_url(posts(:one))
+
+    body = response.parsed_body
+    assert_equal true, body["liked"]
+    assert_equal true, body["saved"]
+  end
+
+  test "show counts other users' likes without marking the post as liked by me" do
+    sign_in_as(users(:two))
+
+    get api_post_url(posts(:one))
+
+    body = response.parsed_body
+    assert_equal 1, body["like_count"]
+    assert_equal false, body["liked"]
+    assert_equal false, body["saved"]
+  end
+
   test "show returns 404 for an unknown post" do
     get api_post_url(id: 0)
+
+    assert_response :not_found
+    assert_equal({ "error" => "Post not found" }, response.parsed_body)
+  end
+
+  test "download sends the post's image as an attachment" do
+    image = ImageDownload::Image.new(body: "jpeg-bytes", content_type: "image/jpeg")
+    fetch_image = ->(url) {
+      assert_equal posts(:one).media_url, url
+      image
+    }
+
+    stub_singleton(ImageDownload, :fetch, fetch_image) do
+      get download_api_post_url(posts(:one))
+    end
+
+    assert_response :ok
+    assert_equal "jpeg-bytes", response.body
+    assert_equal "image/jpeg", response.media_type
+    assert_match(/\Aattachment; filename="trends-post-#{posts(:one).id}\.jpg"/, response.headers["Content-Disposition"])
+  end
+
+  test "download of a text-only post returns 404" do
+    get download_api_post_url(posts(:two))
+
+    assert_response :not_found
+    assert_equal({ "error" => "Post has no image" }, response.parsed_body)
+  end
+
+  test "download of an image on a host that isn't allowed returns 422 without requesting it" do
+    no_request = ->(uri) { flunk "unexpected request to #{uri}" }
+
+    stub_singleton(ImageDownload, :get, no_request) do
+      get download_api_post_url(posts(:one)) # https://example.com/one.jpg is not in DOWNLOAD_HOSTS
+    end
+
+    assert_response :unprocessable_entity
+    assert_equal({ "error" => "Download is not available for this image" }, response.parsed_body)
+  end
+
+  test "download returns 502 when the image can't be fetched" do
+    unavailable = ->(_url) { raise ImageDownload::Unavailable, "HTTP 404" }
+
+    stub_singleton(ImageDownload, :fetch, unavailable) do
+      get download_api_post_url(posts(:one))
+    end
+
+    assert_response :bad_gateway
+    assert_equal({ "error" => "Image unavailable" }, response.parsed_body)
+  end
+
+  test "download of an unknown post returns 404" do
+    get download_api_post_url(id: 0)
 
     assert_response :not_found
     assert_equal({ "error" => "Post not found" }, response.parsed_body)

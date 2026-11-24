@@ -10,10 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_20_150100) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_23_120100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
+
+  create_table "comments", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "post_id", null: false
+    t.string "body", limit: 250, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["post_id", "created_at"], name: "index_comments_on_post_id_and_created_at"
+    t.index ["user_id"], name: "index_comments_on_user_id"
+  end
 
   create_table "embeddings", force: :cascade do |t|
     t.datetime "created_at", null: false
@@ -49,6 +59,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_150100) do
     t.bigint "user_id", null: false
     t.index ["post_id", "event_type"], name: "index_interactions_on_post_id_and_event_type"
     t.index ["post_id"], name: "index_interactions_on_post_id"
+    t.index ["user_id", "post_id", "event_type"], name: "index_interactions_one_like_or_save", unique: true, where: "((event_type)::text = ANY ((ARRAY['like'::character varying, 'save'::character varying])::text[]))"
     t.index ["user_id"], name: "index_interactions_on_user_id"
   end
 
@@ -80,6 +91,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_20_150100) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
+  add_foreign_key "comments", "posts"
+  add_foreign_key "comments", "users"
   add_foreign_key "feed_items", "posts"
   add_foreign_key "feed_items", "users"
   add_foreign_key "interactions", "posts"
